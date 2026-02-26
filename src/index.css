@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+:root {
+  --brand-gradient: linear-gradient(
+    228.87deg,
+    #e3eaff 25.93%,
+    #eee2d9 51.91%,
+    #e9d3fd 78.77%
+  );
+}
+
+html {
+  /* font-size: 82.5%; */
+}

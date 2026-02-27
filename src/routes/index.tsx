@@ -82,4 +82,54 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: ROUTES.DASHBOARD.ROOT,
+    element: getElement(pages.DashboardLayout),
+    children: [
+      {
+        index: true,
+        element: <Navigate to={ROUTES.DASHBOARD.OVERVIEW.ROOT} replace />,
+      },
+      {
+        path: "overview",
+        element: getElement(pages.DashboardOverviewPage),
+      },
+      {
+        path: "wallets",
+        element: getElement(pages.WalletsPage),
+      },
+      {
+        path: "transactions",
+        element: getElement(pages.TransactionsPage),
+      },
+      {
+        path: "resolution",
+        element: getElement(pages.ResolutionPage),
+      },
+      {
+        path: "services",
+        element: getElement(pages.ServicesPage),
+      },
+      {
+        path: "customers",
+        element: getElement(pages.CustomersPage),
+      },
+      {
+        path: "e-stores",
+        element: getElement(pages.EStoresPage),
+      },
+      {
+        path: "apps",
+        element: getElement(pages.AppsPage),
+      },
+      {
+        path: "billing",
+        element: getElement(pages.BillingPage),
+      },
+      {
+        path: "settings",
+        element: getElement(pages.SettingsPage),
+      },
+    ],
+  },
 ]);

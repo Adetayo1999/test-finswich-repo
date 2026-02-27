@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 
 const meta: Meta<typeof PrimaryButton> = {
@@ -45,5 +45,3 @@ export const Loading: Story = {
     loading: true,
   },
 };
-
-

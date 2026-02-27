@@ -21,5 +21,37 @@ export const ROUTES = {
     COMPANY_DOCUMENTS: "/onboarding/company-documents",
   },
 
-  DASHBOARD: {},
+  DASHBOARD: {
+    ROOT: "/dashboard",
+    OVERVIEW: {
+      ROOT: "/dashboard/overview",
+    },
+    WALLETS: {
+      ROOT: "/dashboard/wallets",
+    },
+    TRANSACTIONS: {
+      ROOT: "/dashboard/transactions",
+    },
+    RESOLUTION: {
+      ROOT: "/dashboard/resolution",
+    },
+    SERVICES: {
+      ROOT: "/dashboard/services",
+    },
+    CUSTOMERS: {
+      ROOT: "/dashboard/customers",
+    },
+    ESTORES: {
+      ROOT: "/dashboard/e-stores",
+    },
+    APPS: {
+      ROOT: "/dashboard/apps",
+    },
+    BILLING: {
+      ROOT: "/dashboard/billing",
+    },
+    SETTINGS: {
+      ROOT: "/dashboard/settings",
+    },
+  },
 } as const;

@@ -1,11 +1,19 @@
+import clsx from "clsx";
+
 interface ModalWrapperProps {
   children: React.ReactNode;
+  className?: string;
 }
 
 const ModalWrapper: React.FC<ModalWrapperProps> = (props) => {
   return (
     <div className=" bg-[#00000042] flex flex-col justify-end top-0 left-0 w-full h-screen fixed">
-      <div className="bg-[linear-gradient(228.87deg,#e3eaff_25.93%,#eee2d9_51.91%,#e9d3fd_78.77%)] h-[80%]  backdrop-blur-[26px] rounded-tr-[30px] rounded-tl-[30px] relative">
+      <div
+        className={clsx(
+          "bg-[linear-gradient(228.87deg,#e3eaff_25.93%,#eee2d9_51.91%,#e9d3fd_78.77%)] h-[85%]  backdrop-blur-[26px] rounded-tr-[30px] rounded-tl-[30px] relative py-15 px-25",
+          props.className,
+        )}
+      >
         {props.children}
 
         <div className="bg-[#27222280] text-xs absolute -top-15 left-12 text-white rounded-xl flex gap-x-2 items-center px-4 py-1.5">
@@ -50,7 +58,7 @@ const ModalWrapper: React.FC<ModalWrapperProps> = (props) => {
           <span> fuspay</span>
         </div>
 
-        <button className="border border-[#CD2C2C] bg-[#FAD6D6] min-w-[8rem] p-2  rounded-full text-[#CD2C2C] absolute -top-5 right-4 flex justify-between items-center">
+        <button className="border border-[#CD2C2C] bg-[#FAD6D6] min-w-32 p-2  rounded-full text-[#CD2C2C] absolute -top-5 right-4 flex justify-between items-center">
           <span className="flex-1 font-bold text-sm">Close</span>
           <span className="shrink-0 h-6.5 w-6.5 rounded-full flex justify-center items-center bg-[#CD2C2C]">
             <svg

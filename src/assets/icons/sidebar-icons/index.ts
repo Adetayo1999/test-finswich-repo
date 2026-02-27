@@ -1,0 +1,10 @@
+export { AppBuilderIcon } from "./app-builder-icon";
+export { BillingIcon } from "./billing-icon";
+export { BriefcaseIcon } from "./breifcase-icon";
+export { CustomerIcon } from "./customer-icon";
+export { ElectronicStoresIcon } from "./e-stores-icon";
+export { OverviewIcon } from "./overview-icon";
+export { ResolutionIcon } from "./resolution-icon";
+export { CirclesIcon } from "./services-icon";
+export { SettingsIcon } from "./settings-icon";
+export { TransactionsIcon } from "./transactions-icon";

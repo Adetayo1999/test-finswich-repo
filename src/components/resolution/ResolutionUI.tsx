@@ -113,11 +113,13 @@ export const AllDisputesView = () => {
                 "w-full text-left p-3 rounded-lg border transition-colors",
                 selectedId === d.id
                   ? "bg-[#E8F4FD] border-[#0243EC]/30"
-                  : "bg-white border-[#E4E7EC] hover:bg-[#F7F9FB]"
+                  : "bg-white border-[#E4E7EC] hover:bg-[#F7F9FB]",
               )}
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-lg shrink-0" aria-hidden>{d.countryFlag}</span>
+                <span className="text-lg shrink-0" aria-hidden>
+                  {d.countryFlag}
+                </span>
                 <span className="text-sm font-semibold text-[#11151F] min-w-0 flex-1">
                   {d.currency} {d.amount}
                 </span>
@@ -149,7 +151,7 @@ export const AllDisputesView = () => {
                 "min-w-7 h-8 rounded flex items-center justify-center text-sm",
                 n === 1
                   ? "bg-[#0243EC] text-white font-medium"
-                  : "text-[#344054] hover:bg-[#F2F2F2]"
+                  : "text-[#344054] hover:bg-[#F2F2F2]",
               )}
             >
               {n}
@@ -230,7 +232,7 @@ export const AllDisputesView = () => {
                       "flex items-center gap-1.5 px-2.5 py-1 rounded",
                       step.color === "blue" && "bg-[#E8F4FD]",
                       step.color === "orange" && "bg-[#FEF3E2]",
-                      step.color === "green" && "bg-[#E8F5E9]"
+                      step.color === "green" && "bg-[#E8F5E9]",
                     )}
                   >
                     {step.done ? (
@@ -240,7 +242,7 @@ export const AllDisputesView = () => {
                         className={clsx(
                           "w-3.5 h-3.5 rounded-full border-2",
                           step.color === "orange" && "border-amber-400",
-                          step.color === "green" && "border-green-500"
+                          step.color === "green" && "border-green-500",
                         )}
                       />
                     )}
@@ -256,13 +258,13 @@ export const AllDisputesView = () => {
                   onClick={() => setResolvedToggled((p) => !p)}
                   className={clsx(
                     "w-10 h-5 rounded-full transition-colors",
-                    resolvedToggled ? "bg-red-500" : "bg-red-300"
+                    resolvedToggled ? "bg-red-500" : "bg-red-300",
                   )}
                 >
                   <span
                     className={clsx(
                       "block w-4 h-4 rounded-full bg-white shadow transition-transform",
-                      resolvedToggled && "translate-x-6"
+                      resolvedToggled && "translate-x-6",
                     )}
                   />
                 </button>
@@ -292,13 +294,15 @@ export const AllDisputesView = () => {
                     key={m.id}
                     className={clsx(
                       "flex",
-                      m.from === "agent" ? "justify-end" : "justify-start"
+                      m.from === "agent" ? "justify-end" : "justify-start",
                     )}
                   >
                     <div
                       className={clsx(
                         "max-w-[85%] rounded-lg px-4 py-2 bg-[#F2F2F2]",
-                        m.from === "agent" ? "rounded-br-none" : "rounded-bl-none"
+                        m.from === "agent"
+                          ? "rounded-br-none"
+                          : "rounded-bl-none",
                       )}
                     >
                       <p className="text-sm text-[#344054]">{m.text}</p>
@@ -399,7 +403,6 @@ export type WorkflowColumnId = "yetToStart" | "inProgress" | "completed";
 
 const WorkflowCard = ({
   item,
-  columnId,
   onDragStart,
   isDragging,
 }: {
@@ -413,12 +416,14 @@ const WorkflowCard = ({
     onDragStart={(e) => onDragStart(e, item.id)}
     className={clsx(
       "p-3 rounded-lg border border-[#E4E7EC] bg-white text-left cursor-grab active:cursor-grabbing transition-opacity",
-      isDragging && "opacity-50"
+      isDragging && "opacity-50",
     )}
   >
     <div className="flex items-start justify-between gap-2 mb-2">
       <div className="flex items-center gap-2 min-w-0 flex-1">
-        <span className="text-lg shrink-0" aria-hidden>{item.countryFlag}</span>
+        <span className="text-lg shrink-0" aria-hidden>
+          {item.countryFlag}
+        </span>
         <span className="text-sm font-semibold text-[#11151F] min-w-0 truncate">
           {item.currency} {item.amount}
         </span>
@@ -456,7 +461,11 @@ const WorkflowColumn = ({
   subtitle: string;
   variant: "grey" | "orange" | "green";
   items: WorkflowItem[];
-  onDragStart: (e: React.DragEvent, itemId: string, sourceColumnId: WorkflowColumnId) => void;
+  onDragStart: (
+    e: React.DragEvent,
+    itemId: string,
+    sourceColumnId: WorkflowColumnId,
+  ) => void;
   onDrop: (e: React.DragEvent, targetColumnId: WorkflowColumnId) => void;
   onDragEnter: (e: React.DragEvent, columnId: WorkflowColumnId) => void;
   onDragLeave: (e: React.DragEvent) => void;
@@ -488,7 +497,7 @@ const WorkflowColumn = ({
       <div
         className={clsx(
           "flex-1 overflow-y-auto p-3 space-y-2 min-h-0 transition-colors",
-          isDropTarget && "bg-[#0243EC]/8"
+          isDropTarget && "bg-[#0243EC]/8",
         )}
         onDragOver={handleDragOver}
         onDragEnter={(e) => onDragEnter(e, columnId)}
@@ -506,7 +515,10 @@ const WorkflowColumn = ({
         ))}
       </div>
       <div className="p-3 border-t border-[#E4E7EC] flex items-center justify-center gap-1 shrink-0 bg-white">
-        <button type="button" className="w-8 h-8 flex items-center justify-center rounded text-[#767680] hover:bg-[#F2F2F2] text-sm">
+        <button
+          type="button"
+          className="w-8 h-8 flex items-center justify-center rounded text-[#767680] hover:bg-[#F2F2F2] text-sm"
+        >
           ‹
         </button>
         {[1, 2, 3, 4, 5].map((n) => (
@@ -515,13 +527,18 @@ const WorkflowColumn = ({
             type="button"
             className={clsx(
               "min-w-7 h-8 rounded flex items-center justify-center text-sm",
-              n === 1 ? "bg-[#E4E7EC] text-[#344054] font-medium" : "text-[#344054] hover:bg-[#F2F2F2]"
+              n === 1
+                ? "bg-[#E4E7EC] text-[#344054] font-medium"
+                : "text-[#344054] hover:bg-[#F2F2F2]",
             )}
           >
             {n}
           </button>
         ))}
-        <button type="button" className="w-8 h-8 flex items-center justify-center rounded text-[#767680] hover:bg-[#F2F2F2] text-sm">
+        <button
+          type="button"
+          className="w-8 h-8 flex items-center justify-center rounded text-[#767680] hover:bg-[#F2F2F2] text-sm"
+        >
           ›
         </button>
       </div>
@@ -529,10 +546,12 @@ const WorkflowColumn = ({
   );
 };
 
-const INITIAL_YET_TO_START: WorkflowItem[] = WORKFLOW_CARD_DATA.map((item, i) => ({
-  ...item,
-  id: `yet-${i + 1}`,
-}));
+const INITIAL_YET_TO_START: WorkflowItem[] = WORKFLOW_CARD_DATA.map(
+  (item, i) => ({
+    ...item,
+    id: `yet-${i + 1}`,
+  }),
+);
 const INITIAL_IN_PROGRESS: WorkflowItem[] = [
   { ...WORKFLOW_CARD_DATA[0], id: "in-1" },
   { ...WORKFLOW_CARD_DATA[2], id: "in-2" },
@@ -542,23 +561,32 @@ const INITIAL_COMPLETED: WorkflowItem[] = [
 ];
 
 export const WorkflowView = () => {
-  const [columns, setColumns] = useState<Record<WorkflowColumnId, WorkflowItem[]>>({
+  const [columns, setColumns] = useState<
+    Record<WorkflowColumnId, WorkflowItem[]>
+  >({
     yetToStart: INITIAL_YET_TO_START,
     inProgress: INITIAL_IN_PROGRESS,
     completed: INITIAL_COMPLETED,
   });
   const [draggingItemId, setDraggingItemId] = useState<string | null>(null);
-  const [draggingFrom, setDraggingFrom] = useState<WorkflowColumnId | null>(null);
-  const [dropTargetId, setDropTargetId] = useState<WorkflowColumnId | null>(null);
+  const [draggingFrom, setDraggingFrom] = useState<WorkflowColumnId | null>(
+    null,
+  );
+  const [dropTargetId, setDropTargetId] = useState<WorkflowColumnId | null>(
+    null,
+  );
 
   const handleDragStart = (
     e: React.DragEvent,
     itemId: string,
-    sourceColumnId: WorkflowColumnId
+    sourceColumnId: WorkflowColumnId,
   ) => {
     setDraggingItemId(itemId);
     setDraggingFrom(sourceColumnId);
-    e.dataTransfer.setData("application/json", JSON.stringify({ itemId, sourceColumnId }));
+    e.dataTransfer.setData(
+      "application/json",
+      JSON.stringify({ itemId, sourceColumnId }),
+    );
     e.dataTransfer.effectAllowed = "move";
   };
 

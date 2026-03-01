@@ -22,7 +22,7 @@ const DashboardOverviewPage = () => {
         <TransactionsChart />
         <TreasuryByCurrencyChart />
       </div>
-      <div className="flex-[0.2] flex flex-col gap-y-8 px-2 py-8">
+      <div className="flex-[0.2] flex flex-col gap-y-8 px-4 py-8">
         <ResolutionNotifications />
         <OngoingTxnActivities />
         <NewUsers />

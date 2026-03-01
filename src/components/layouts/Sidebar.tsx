@@ -6,7 +6,7 @@ import clsx from "clsx";
 
 export const DashboardSidebar = () => {
   return (
-    <div className="border-[#F1F1F1] border-r py-5 px-10 h-full">
+    <div className="border-[#F1F1F1] border-r py-5 px-10 h-full ">
       <div className="flex items-center mb-14">
         <Link to={ROUTES.DASHBOARD.ROOT}>
           <FinswichLogo scale={0.8} />
@@ -14,10 +14,11 @@ export const DashboardSidebar = () => {
       </div>
 
       <nav className="flex flex-col ">
-        {SIDEBAR_NAV.map(({ path, icon: Icon, title }) => (
+        {SIDEBAR_NAV.map(({ path, icon: Icon, title, end = true }) => (
           <NavLink
             key={path}
             to={path}
+            end={end}
             className={({ isActive }) =>
               clsx(
                 "flex gap-x-6 items-center text-sm py-4",

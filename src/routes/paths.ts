@@ -28,12 +28,19 @@ export const ROUTES = {
     },
     WALLETS: {
       ROOT: "/dashboard/wallets",
+      BILLING: "/dashboard/wallets",
+      SETTLEMENT: "/dashboard/wallets/settlement",
+      KYC: "/dashboard/wallets/kyc",
     },
     TRANSACTIONS: {
       ROOT: "/dashboard/transactions",
+      PAYIN: "/dashboard/transactions",
+      PAYOUT: "/dashboard/transactions/payout",
     },
     RESOLUTION: {
       ROOT: "/dashboard/resolution",
+      ALL_ISSUES: "/dashboard/resolution",
+      WORKFLOW: "/dashboard/resolution/workflow",
     },
     SERVICES: {
       ROOT: "/dashboard/services",
@@ -43,6 +50,11 @@ export const ROUTES = {
     },
     ESTORES: {
       ROOT: "/dashboard/e-stores",
+      STORES: "/dashboard/e-stores",
+      CATALOGS: "/dashboard/e-stores/catalogs",
+      CATEGORIES: "/dashboard/e-stores/categories",
+      PRODUCTS: "/dashboard/e-stores/products",
+      ORDERS: "/dashboard/e-stores/orders",
     },
     APPS: {
       ROOT: "/dashboard/apps",
@@ -52,6 +64,13 @@ export const ROUTES = {
     },
     SETTINGS: {
       ROOT: "/dashboard/settings",
+      ACCOUNT: "/dashboard/settings",
+      LOGIN_SECURITY: "/dashboard/settings/login-security",
+      FAQ: "/dashboard/settings/faq",
+      DEVELOPER: "/dashboard/settings/developer",
+      CONTACT_SUPPORT: "/dashboard/settings/contact-support",
+      TC_POLICY: "/dashboard/settings/tc-policy",
+      ACCOUNT_CONTROL: "/dashboard/settings/account-control",
     },
   },
 } as const;

@@ -4,7 +4,7 @@ import { DashboardSidebar } from "./Sidebar";
 
 const DashboardHeader = () => {
   return (
-    <div className="px-10  py-5 flex justify-between gap-x-10 items-center border-b border-[#F1F1F1]">
+    <div className="px-10  py-5 flex justify-between gap-x-10 items-center border-b border-[#F1F1F1] bg-white">
       <div className="flex-1 flex justify-between items-center">
         <div className="w-[20rem] h-10 relative">
           <button className="absolute -translate-x-[50%] -translate-y-[50%] top-[50%] left-4 ">
@@ -105,8 +105,8 @@ const DashboardHeader = () => {
 
 const DashboardLayout = () => {
   return (
-    <div className="h-dvh md:h-screen flex">
-      <div className="flex-[0.17]">
+    <div className="h-dvh md:h-screen flex bg-[linear-gradient(228.87deg,#e3eaff_25.93%,#eee2d9_51.91%,#e9d3fd_78.77%)] overflow-hidden ">
+      <div className="flex-[0.17] bg-white">
         <DashboardSidebar />
       </div>
       <div className="flex-[0.83] overflow-y-auto">

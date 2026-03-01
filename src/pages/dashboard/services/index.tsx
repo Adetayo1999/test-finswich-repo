@@ -1,13 +1,13 @@
+import { ManageServicesView } from "@/components/services/ServicesUI";
+
 const ServicesPage = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold">Services</h1>
-      <p className="mt-2 text-sm text-[#767680]">
-        This is the services module for the dashboard.
-      </p>
+    <div className="p-[2.063rem]">
+      <div className="">
+        <ManageServicesView />
+      </div>
     </div>
   );
 };
 
 export default ServicesPage;
-

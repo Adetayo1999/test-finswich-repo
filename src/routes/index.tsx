@@ -16,7 +16,7 @@ const getElement = (
 export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
-    element: <Navigate to={ROUTES.AUTH.LOGIN} replace />,
+    element: <Navigate to={ROUTES.DASHBOARD.OVERVIEW.ROOT} replace />,
   },
   {
     path: ROUTES.AUTH.ROOT,
@@ -96,15 +96,43 @@ export const router = createBrowserRouter([
       },
       {
         path: "wallets",
-        element: getElement(pages.WalletsPage),
+        element: getElement(pages.WalletsLayout),
+        children: [
+          {
+            index: true,
+            element: getElement(pages.BillingWalletPage),
+          },
+          {
+            path: "settlement",
+            element: getElement(pages.SettlementWalletPage),
+          },
+          {
+            path: "kyc",
+            element: getElement(pages.KycWalletPage),
+          },
+        ],
       },
       {
         path: "transactions",
-        element: getElement(pages.TransactionsPage),
+        element: getElement(pages.TransactionsLayout),
+        children: [
+          {
+            index: true,
+            element: getElement(pages.PayinPage),
+          },
+          {
+            path: "payout",
+            element: getElement(pages.PayoutPage),
+          },
+        ],
       },
       {
         path: "resolution",
-        element: getElement(pages.ResolutionPage),
+        element: getElement(pages.ResolutionLayout),
+        children: [
+          { index: true, element: getElement(pages.AllIssuesPage) },
+          { path: "workflow", element: getElement(pages.WorkflowPage) },
+        ],
       },
       {
         path: "services",
@@ -116,7 +144,14 @@ export const router = createBrowserRouter([
       },
       {
         path: "e-stores",
-        element: getElement(pages.EStoresPage),
+        element: getElement(pages.EStoresLayout),
+        children: [
+          { index: true, element: getElement(pages.StoresPage) },
+          { path: "catalogs", element: getElement(pages.CatalogsPage) },
+          { path: "categories", element: getElement(pages.CategoriesPage) },
+          { path: "products", element: getElement(pages.ProductsPage) },
+          { path: "orders", element: getElement(pages.OrdersPage) },
+        ],
       },
       {
         path: "apps",
@@ -128,7 +163,25 @@ export const router = createBrowserRouter([
       },
       {
         path: "settings",
-        element: getElement(pages.SettingsPage),
+        element: getElement(pages.SettingsLayout),
+        children: [
+          { index: true, element: getElement(pages.AccountSettingsPage) },
+          {
+            path: "login-security",
+            element: getElement(pages.LoginSecurityPage),
+          },
+          { path: "faq", element: getElement(pages.FaqPage) },
+          { path: "developer", element: getElement(pages.DeveloperPage) },
+          {
+            path: "contact-support",
+            element: getElement(pages.ContactSupportPage),
+          },
+          { path: "tc-policy", element: getElement(pages.TcPolicyPage) },
+          {
+            path: "account-control",
+            element: getElement(pages.AccountControlPage),
+          },
+        ],
       },
     ],
   },

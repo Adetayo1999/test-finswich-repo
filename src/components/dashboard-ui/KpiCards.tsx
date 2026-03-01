@@ -59,7 +59,13 @@ export type KpiCardProps = KpiCardItem & {
   variant?: "light" | "muted";
 };
 
-export function KpiCard({ title, value, change, trend, variant = "light" }: KpiCardProps) {
+export function KpiCard({
+  title,
+  value,
+  change,
+  trend,
+  variant = "light",
+}: KpiCardProps) {
   return (
     <div
       className={`rounded-xl px-8 py-5 h-28 flex justify-between flex-col ${
@@ -68,7 +74,9 @@ export function KpiCard({ title, value, change, trend, variant = "light" }: KpiC
     >
       <p className="text-[0.8125rem] font-normal text-[#1C1C1C]">{title}</p>
       <div className="flex justify-between items-center flex-wrap gap-y-2 gap-x-2.5">
-        <p className="mt-1 text-[1.375rem] font-bold leading-tight text-[#1C1C1C]">{value}</p>
+        <p className="mt-1 text-[1.375rem] font-bold leading-tight text-[#1C1C1C]">
+          {value}
+        </p>
         <p className="mt-1 text-[0.8125rem] font-normal text-[#1C1C1C]">
           {change}
           {trend === "up" ? <TrendUp /> : <TrendDown />}

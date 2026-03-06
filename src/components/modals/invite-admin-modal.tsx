@@ -2,9 +2,13 @@ import ModalWrapper from "../common/modal";
 import { ModalInput, ModalSelect } from "../common/modal/form";
 import { PrimaryButton } from "../ui/PrimaryButton";
 
-const InviteAdminModal = () => {
+interface InviteAdminModalProps {
+  onClose?: () => void;
+}
+
+const InviteAdminModal = ({ onClose }: InviteAdminModalProps) => {
   return (
-    <ModalWrapper>
+    <ModalWrapper onClose={onClose}>
       <div className="w-[70%] ">
         <div className="mb-8.5">
           <h1 className="text-[#4F4F4F] text-[2rem] font-bold mb-1 ">

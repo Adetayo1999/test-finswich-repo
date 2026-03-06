@@ -48,7 +48,11 @@ export const SIDEBAR_NAV: SidebarNavItem[] = [
     title: "e-Stores",
     end: false,
   },
-  { path: ROUTES.DASHBOARD.APPS.ROOT, icon: AppBuilderIcon, title: "Apps" },
+  {
+    path: ROUTES.DASHBOARD.APP_BUILDER.ROOT,
+    icon: AppBuilderIcon,
+    title: "App Builder",
+  },
   { path: ROUTES.DASHBOARD.BILLING.ROOT, icon: BillingIcon, title: "Billing" },
   {
     path: ROUTES.DASHBOARD.SETTINGS.ROOT,

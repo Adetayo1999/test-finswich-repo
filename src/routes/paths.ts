@@ -21,6 +21,12 @@ export const ROUTES = {
     COMPANY_DOCUMENTS: "/onboarding/company-documents",
   },
 
+  APPS: {
+    ROOT: "/apps",
+    ALL_APPS: "/apps",
+    APP_ADMIN: "/apps/admin",
+  },
+
   DASHBOARD: {
     ROOT: "/dashboard",
     OVERVIEW: {
@@ -56,8 +62,8 @@ export const ROUTES = {
       PRODUCTS: "/dashboard/e-stores/products",
       ORDERS: "/dashboard/e-stores/orders",
     },
-    APPS: {
-      ROOT: "/dashboard/apps",
+    APP_BUILDER: {
+      ROOT: "/dashboard/app-builder",
     },
     BILLING: {
       ROOT: "/dashboard/billing",

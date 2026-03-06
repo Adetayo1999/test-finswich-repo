@@ -167,7 +167,15 @@ export const ManageServicesView = () => {
           {SERVICES.map((s) => {
             const checked = enabled.has(s.id);
             return (
-              <li key={s.id} className="flex items-center gap-3">
+              <li
+                key={s.id}
+                className={clsx(
+                  "flex items-center gap-3 border rounded-lg p-3",
+                  selectedId === s.id
+                    ? "border-[#0243EC] bg-[#F5F5F5]"
+                    : "border-[#E4E7EC] hover:bg-[#F5F5F5]",
+                )}
+              >
                 <label className="shrink-0 cursor-pointer">
                   <input
                     type="checkbox"
@@ -189,10 +197,7 @@ export const ManageServicesView = () => {
                 <button
                   type="button"
                   className={clsx(
-                    "flex-1 min-w-0 text-left border rounded-lg p-3 transition-colors",
-                    selectedId === s.id
-                      ? "border-[#0243EC] bg-[#E8F4FD]"
-                      : "border-[#E4E7EC] hover:bg-[#F5F5F5]",
+                    "flex-1 min-w-0 text-left  transition-colors",
                   )}
                   onClick={() => setSelectedId(s.id)}
                 >
@@ -221,14 +226,16 @@ export const ManageServicesView = () => {
           </p>
         </div>
         <div className="flex-1 overflow-y-auto min-h-0 px-6 pb-6">
-          <div className="mb-8 p-4 rounded-lg bg-[#F7F9FB] border border-[#E4E7EC]">
-            <p className="text-sm font-semibold text-[#11151F]">
-              Global Pricing
-            </p>
-            <p className="text-xs text-[#767680] mt-0.5">
-              Use a singular pricing configuration across all countries.
-            </p>
-            <div className="flex items-center gap-3 mt-3">
+          <div className="mb-8 p-4 flex justify-between ">
+            <div className="">
+              <p className="text-sm font-semibold text-[#11151F]">
+                Global Pricing
+              </p>
+              <p className="text-xs text-[#767680] mt-0.5">
+                Use a singular pricing configuration across all countries.
+              </p>
+            </div>
+            <div className="flex items-center">
               <button
                 type="button"
                 role="switch"
@@ -246,9 +253,6 @@ export const ManageServicesView = () => {
                   )}
                 />
               </button>
-              <span className="text-xs text-[#767680]">
-                Use a singular pricing...
-              </span>
             </div>
           </div>
 
@@ -256,7 +260,7 @@ export const ManageServicesView = () => {
             {countries.map((c) => (
               <div
                 key={c.id}
-                className="border border-[#E4E7EC] rounded-xl overflow-hidden"
+                className="border border-[#E4E7EC] bg-[#F5F5F5] rounded-xl overflow-hidden"
               >
                 <div
                   role="button"
@@ -340,7 +344,7 @@ export const ManageServicesView = () => {
                             <label className="block text-xs font-medium text-[#344054] mb-1">
                               Pricing Type
                             </label>
-                            <select className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20">
+                            <select className="w-full rounded-lg border  border-[#E4E7EC] bg-white px-3 py-2.5 text-sm text-[#344054] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20">
                               <option>Select Pricing Type</option>
                             </select>
                           </div>
@@ -351,7 +355,7 @@ export const ManageServicesView = () => {
                             <input
                               type="text"
                               placeholder="NGN | Amount"
-                              className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
+                              className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
                             />
                           </div>
                           <div>
@@ -361,7 +365,7 @@ export const ManageServicesView = () => {
                             <input
                               type="text"
                               placeholder="NGN | Amount"
-                              className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
+                              className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
                             />
                           </div>
                           <div>
@@ -371,7 +375,7 @@ export const ManageServicesView = () => {
                             <input
                               type="text"
                               placeholder="NGN | Amount"
-                              className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
+                              className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
                             />
                           </div>
                         </div>
@@ -397,14 +401,14 @@ export const ManageServicesView = () => {
                               </label>
                               <input
                                 type="text"
-                                className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
+                                className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
                               />
                             </div>
                             <div>
                               <label className="block text-xs font-medium text-[#344054] mb-1">
                                 Select Pricing Type
                               </label>
-                              <select className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20">
+                              <select className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20">
                                 <option>Select Pricing Type</option>
                               </select>
                             </div>
@@ -415,7 +419,7 @@ export const ManageServicesView = () => {
                               <input
                                 type="text"
                                 placeholder="Pricing Narration"
-                                className="w-full rounded-lg border border-[#E4E7EC] px-3 py-2 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
+                                className="w-full rounded-lg border border-[#E4E7EC] bg-white px-3 py-2.5 text-sm placeholder:text-[#767680] focus:outline-none focus:ring-2 focus:ring-[#0243EC]/20"
                               />
                             </div>
                           </div>

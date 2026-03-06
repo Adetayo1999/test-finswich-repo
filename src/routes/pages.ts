@@ -94,7 +94,14 @@ export const ProductsPage = lazy(
 export const OrdersPage = lazy(
   () => import("@/pages/dashboard/e-stores/orders"),
 );
-export const AppsPage = lazy(() => import("@/pages/dashboard/apps/index"));
+export const AppsLayout = lazy(
+  () => import("@/components/layouts/AppsLayout"),
+);
+export const AllAppsPage = lazy(() => import("@/pages/apps/all-apps"));
+export const AppAdminPage = lazy(() => import("@/pages/apps/app-admin"));
+export const AppBuilderPage = lazy(
+  () => import("@/pages/dashboard/app-builder/index"),
+);
 export const BillingPage = lazy(
   () => import("@/pages/dashboard/billing/index"),
 );

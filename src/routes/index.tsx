@@ -49,6 +49,20 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: ROUTES.APPS.ROOT,
+    element: getElement(pages.AppsLayout),
+    children: [
+      {
+        index: true,
+        element: getElement(pages.AllAppsPage),
+      },
+      {
+        path: "admin",
+        element: getElement(pages.AppAdminPage),
+      },
+    ],
+  },
+  {
     path: ROUTES.ONBOARDING.ROOT,
     element: getElement(pages.OnboardingLayout),
     children: [
@@ -154,8 +168,8 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        path: "apps",
-        element: getElement(pages.AppsPage),
+        path: "app-builder",
+        element: getElement(pages.AppBuilderPage),
       },
       {
         path: "billing",

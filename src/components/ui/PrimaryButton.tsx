@@ -1,8 +1,7 @@
 import clsx from "clsx";
 import type React from "react";
 
-export interface PrimaryButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   loading?: boolean;
   loadingText?: string;
@@ -22,7 +21,7 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
       {...rest}
       disabled={disabled || loading}
       className={clsx(
-        "inline-flex items-center justify-center rounded-lg bg-[#712EEB] min-w-[167px] h-[49px] px-[103px] py-3 text-base font-medium text-white transition-colors duration-150 hover:bg-[#5F21CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#712EEB] disabled:opacity-60 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center rounded-lg bg-[#712EEB] min-w-41.75 h-12.25 px-25.75 py-3 text-base font-medium text-white transition-colors duration-150 hover:bg-[#5F21CF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#712EEB] disabled:opacity-60 disabled:cursor-not-allowed",
         fullWidth && "w-full px-6",
         className,
       )}
@@ -31,4 +30,3 @@ export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
     </button>
   );
 };
-

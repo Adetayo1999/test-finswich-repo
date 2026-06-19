@@ -1,49 +1,165 @@
 import { useRef, useState } from "react";
 import clsx from "clsx";
-import { MobilePreviewPlaceholder } from "@/components/configure-app/MobilePreviewPlaceholder";
+import { FiUploadCloud, FiX } from "react-icons/fi";
+import toast from "react-hot-toast";
+import { OnboardingScreenPreview } from "@/components/configure-app/OnboardingScreenPreview";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { revokePreviewUrl } from "@/lib/preview-url";
+import type { ConfigureAppConfigData } from "../config-data";
+import {
+  createOnboardingSlide,
+  revokeSlideImage,
+  type OnboardingSlideConfig,
+} from "./onboarding-slide";
 
-export const OnboardingTab = () => {
-  const [activeSlide, setActiveSlide] = useState(1);
+type OnboardingTabProps = {
+  value: ConfigureAppConfigData["onboarding"];
+  onChange: (value: ConfigureAppConfigData["onboarding"]) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  onSave: () => void;
+  saving?: boolean;
+};
 
-  const [bgPrimaryColor, setBgPrimaryColor] = useState("#bbf7d0");
-  const [bgSecondaryColor, setBgSecondaryColor] = useState("#bbf7d0");
-  const [textPrimaryColor, setTextPrimaryColor] = useState("#2563EB");
-  const [textSecondaryColor, setTextSecondaryColor] = useState("#2563EB");
-  const [buttonPrimaryColor, setButtonPrimaryColor] = useState("#2563EB");
-  const [buttonSecondaryColor, setButtonSecondaryColor] = useState("#2563EB");
-  const [buttonTextColor, setButtonTextColor] = useState("#FFFFFF");
+export const OnboardingTab = ({
+  value,
+  onChange,
+  onPrevious,
+  onNext,
+  onSave,
+  saving,
+}: OnboardingTabProps) => {
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+
+  const slides = value.slides.length > 0 ? value.slides : [createOnboardingSlide()];
+  const activeSlide = slides[activeSlideIndex];
 
   const bgPrimaryInputRef = useRef<HTMLInputElement | null>(null);
   const bgSecondaryInputRef = useRef<HTMLInputElement | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
   const textPrimaryInputRef = useRef<HTMLInputElement | null>(null);
   const textSecondaryInputRef = useRef<HTMLInputElement | null>(null);
   const btnPrimaryInputRef = useRef<HTMLInputElement | null>(null);
   const btnSecondaryInputRef = useRef<HTMLInputElement | null>(null);
   const btnTextInputRef = useRef<HTMLInputElement | null>(null);
+  const imageUpload = useFileUpload();
+
+  const setSlides = (getNextSlides: (slides: OnboardingSlideConfig[]) => OnboardingSlideConfig[]) => {
+    onChange({ slides: getNextSlides(slides) });
+  };
+
+  const updateActiveSlide = (patch: Partial<OnboardingSlideConfig>) => {
+    setSlides((previous) =>
+      previous.map((slide, index) =>
+        index === activeSlideIndex ? { ...slide, ...patch } : slide,
+      ),
+    );
+  };
+
+  const handleImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    event.target.value = "";
+
+    try {
+      const url = await imageUpload.upload(file);
+      revokePreviewUrl(activeSlide.uploadedImage);
+      updateActiveSlide({ uploadedImage: url });
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload image",
+      );
+    }
+  };
+
+  const handleAddSlide = () => {
+    setSlides((previous) => [...previous, createOnboardingSlide()]);
+    setActiveSlideIndex(slides.length);
+  };
+
+  const handleRemoveSlide = (index: number) => {
+    if (slides.length <= 1) return;
+
+    const slideToRemove = slides[index];
+    revokeSlideImage(slideToRemove);
+
+    setSlides((previous) => previous.filter((_, slideIndex) => slideIndex !== index));
+    setActiveSlideIndex((previous) => {
+      if (previous > index) return previous - 1;
+      if (previous === index) return Math.max(0, previous - 1);
+      return previous;
+    });
+  };
+
+  const handlePreviousSlide = () => {
+    if (activeSlideIndex === 0) {
+      onPrevious();
+      return;
+    }
+    setActiveSlideIndex((previous) => previous - 1);
+  };
+
+  const handleNextSlide = () => {
+    if (activeSlideIndex === slides.length - 1) {
+      onNext();
+      return;
+    }
+    setActiveSlideIndex((previous) => previous + 1);
+  };
+
+  if (!activeSlide) return null;
+
+  const {
+    titleText,
+    subtitleText,
+    buttonText,
+    bgPrimaryColor,
+    bgSecondaryColor,
+    textPrimaryColor,
+    textSecondaryColor,
+    buttonPrimaryColor,
+    buttonSecondaryColor,
+    buttonTextColor,
+    uploadedImage,
+  } = activeSlide;
 
   return (
     <div className="w-full">
-      <div className="mb-6 flex items-center gap-4">
-        <div className="inline-flex items-center rounded-full border border-[#E5E7EB] bg-white px-2 py-1">
-          {[1, 2, 3].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => setActiveSlide(n)}
-              className={clsx(
-                "rounded-full px-6 py-2 text-sm font-semibold transition",
-                activeSlide === n
-                  ? "bg-[#111827] text-white"
-                  : "text-[#6B7280]",
+      <div className="mb-6 flex flex-wrap items-center gap-4">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-full border border-[#E5E7EB] bg-white px-2 py-1">
+          {slides.map((slide, index) => (
+            <div key={slide.id} className="inline-flex items-center">
+              <button
+                type="button"
+                onClick={() => setActiveSlideIndex(index)}
+                className={clsx(
+                  "rounded-full px-6 py-2 text-sm font-semibold transition",
+                  activeSlideIndex === index
+                    ? "bg-[#111827] text-white"
+                    : "text-[#6B7280]",
+                )}
+              >
+                Slide {index + 1}
+              </button>
+              {slides.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSlide(index)}
+                  aria-label={`Remove slide ${index + 1}`}
+                  className="ml-1 inline-flex h-7 w-7 items-center justify-center rounded-full text-[#6B7280] transition hover:bg-[#FEE2E2] hover:text-[#DC2626]"
+                >
+                  <FiX className="h-4 w-4" />
+                </button>
               )}
-            >
-              Slide {n}
-            </button>
+            </div>
           ))}
         </div>
         <button
           type="button"
+          onClick={handleAddSlide}
           className="rounded-full bg-[#111827] px-6 py-2 text-sm font-semibold text-white"
         >
           + Add Slide
@@ -52,11 +168,17 @@ export const OnboardingTab = () => {
       <div className="grid grid-cols-[1fr_auto] gap-10 items-start">
         <div className="space-y-6">
           <div>
-            <label className="mb-2 block text-xs font-semibold text-[#767680]">
-              Pick a Background Colour
-            </label>
-            <div className="flex  gap-x-6">
-              <div className="inline-block rounded-3xl border border-[#E5E7EB] bg-white p-4 w-50 shrink-0">
+            <div className="mb-2 flex gap-x-6">
+              <label className="w-50 shrink-0 text-xs font-semibold text-[#767680]">
+                Pick a Background Colour
+              </label>
+              <label className="w-56 shrink-0 text-xs font-semibold text-[#767680]">
+                Upload Image
+              </label>
+              <div className="flex-1" aria-hidden />
+            </div>
+            <div className="flex items-stretch gap-x-6">
+              <div className="inline-flex w-50 shrink-0 flex-col rounded-3xl border border-[#E5E7EB] bg-white p-4">
                 <div className="space-y-3 text-[11px] text-[#6B7280]">
                   <div className="flex flex-col gap-2">
                     <span className="">Primary</span>
@@ -125,28 +247,85 @@ export const OnboardingTab = () => {
                     type="color"
                     className="hidden"
                     value={bgPrimaryColor}
-                    onChange={(e) => setBgPrimaryColor(e.target.value)}
+                    onChange={(e) =>
+                      updateActiveSlide({ bgPrimaryColor: e.target.value })
+                    }
                   />
                   <input
                     ref={bgSecondaryInputRef}
                     type="color"
                     className="hidden"
                     value={bgSecondaryColor}
-                    onChange={(e) => setBgSecondaryColor(e.target.value)}
+                    onChange={(e) =>
+                      updateActiveSlide({ bgSecondaryColor: e.target.value })
+                    }
                   />
                 </div>
               </div>
+
               <div
-                className="flex-1 flex flex-col justify-center  rounded-xl px-14 py-6"
+                role="button"
+                tabIndex={0}
+                aria-label="Upload onboarding image"
+                onClick={() =>
+                  !imageUpload.isUploading && imageInputRef.current?.click()
+                }
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") imageInputRef.current?.click();
+                }}
+                className="flex w-56 shrink-0 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-[#D9DEF8] bg-[#F7F8FF] px-4 py-6"
+              >
+                {uploadedImage ? (
+                  <img
+                    src={uploadedImage}
+                    alt="Uploaded onboarding illustration"
+                    className="mb-2 max-h-24 w-full object-contain"
+                  />
+                ) : (
+                  <FiUploadCloud className="mb-2 h-10 w-10 text-[#5C5C60]" />
+                )}
+                <p className="text-center text-xs text-[#4B5563]">
+                  {imageUpload.isUploading
+                    ? `Uploading${imageUpload.progress > 0 ? ` (${imageUpload.progress}%)` : "..."}`
+                    : "Choose a file or drag & drop it here"}
+                </p>
+                <button
+                  type="button"
+                  className="mt-3 rounded-full border border-[#111827] bg-white px-4 py-1.5 text-xs font-semibold text-[#111827] shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={imageUpload.isUploading}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    imageInputRef.current?.click();
+                  }}
+                >
+                  {imageUpload.isUploading ? "Uploading..." : "Browse File"}
+                </button>
+                <input
+                  key={activeSlide.id}
+                  ref={imageInputRef}
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  disabled={imageUpload.isUploading}
+                  onChange={handleImageChange}
+                />
+              </div>
+
+              <div
+                className="flex flex-1 flex-col justify-center rounded-xl px-14 py-6"
                 style={{
                   backgroundImage: `linear-gradient(90deg, ${bgPrimaryColor}, ${bgSecondaryColor})`,
                 }}
               >
-                <h3 className="mb-2 text-3xl font-semibold text-[#111827]">
-                  Title Text here
+                <h3
+                  className="mb-2 text-3xl font-semibold"
+                  style={{ color: textPrimaryColor }}
+                >
+                  {titleText.trim() || "Title Text here"}
                 </h3>
-                <p className="text-lg text-[#4B5563]">
-                  Color of subtitle text here and more can be here
+                <p className="text-lg" style={{ color: textSecondaryColor }}>
+                  {subtitleText.trim() ||
+                    "Color of subtitle text here and more can be here"}
                 </p>
               </div>
             </div>
@@ -195,7 +374,9 @@ export const OnboardingTab = () => {
                     type="color"
                     className="hidden"
                     value={textPrimaryColor}
-                    onChange={(e) => setTextPrimaryColor(e.target.value)}
+                    onChange={(e) =>
+                      updateActiveSlide({ textPrimaryColor: e.target.value })
+                    }
                   />
                   <div className="flex flex-col gap-2">
                     <span className="w-16">Secondary</span>
@@ -233,7 +414,9 @@ export const OnboardingTab = () => {
                     type="color"
                     className="hidden"
                     value={textSecondaryColor}
-                    onChange={(e) => setTextSecondaryColor(e.target.value)}
+                    onChange={(e) =>
+                      updateActiveSlide({ textSecondaryColor: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -247,6 +430,10 @@ export const OnboardingTab = () => {
                     <input
                       type="text"
                       placeholder="Enter Text title"
+                      value={titleText}
+                      onChange={(event) =>
+                        updateActiveSlide({ titleText: event.target.value })
+                      }
                       className="h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm outline-none"
                     />
                   </div>
@@ -257,14 +444,22 @@ export const OnboardingTab = () => {
                     <input
                       type="text"
                       placeholder="Enter Button Text"
+                      value={buttonText}
+                      onChange={(event) =>
+                        updateActiveSlide({ buttonText: event.target.value })
+                      }
                       className="h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm outline-none"
                     />
                   </div>
                   <button
                     type="button"
-                    className="mt-5 inline-flex items-center justify-center rounded-full bg-[#2563EB] px-6 py-2.5 text-sm font-semibold text-white"
+                    className="mt-5 inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold"
+                    style={{
+                      backgroundImage: `linear-gradient(90deg, ${buttonPrimaryColor}, ${buttonSecondaryColor})`,
+                      color: buttonTextColor,
+                    }}
                   >
-                    Get Started
+                    {buttonText.trim() || "Get Started"}
                   </button>
                   <button
                     type="button"
@@ -293,6 +488,10 @@ export const OnboardingTab = () => {
                     <textarea
                       rows={4}
                       placeholder="Enter Sub-Text title"
+                      value={subtitleText}
+                      onChange={(event) =>
+                        updateActiveSlide({ subtitleText: event.target.value })
+                      }
                       className="w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-sm outline-none resize-none"
                     />
                   </div>
@@ -337,7 +536,11 @@ export const OnboardingTab = () => {
                         type="color"
                         className="hidden"
                         value={buttonPrimaryColor}
-                        onChange={(e) => setButtonPrimaryColor(e.target.value)}
+                        onChange={(e) =>
+                          updateActiveSlide({
+                            buttonPrimaryColor: e.target.value,
+                          })
+                        }
                       />
                       <div className="space-y-1 text-[11px] text-[#6B7280]">
                         <span className="block">Secondary</span>
@@ -380,7 +583,9 @@ export const OnboardingTab = () => {
                         className="hidden"
                         value={buttonSecondaryColor}
                         onChange={(e) =>
-                          setButtonSecondaryColor(e.target.value)
+                          updateActiveSlide({
+                            buttonSecondaryColor: e.target.value,
+                          })
                         }
                       />
                       <div className="space-y-1 text-[11px] text-[#6B7280]">
@@ -419,7 +624,11 @@ export const OnboardingTab = () => {
                         type="color"
                         className="hidden"
                         value={buttonTextColor}
-                        onChange={(e) => setButtonTextColor(e.target.value)}
+                        onChange={(e) =>
+                          updateActiveSlide({
+                            buttonTextColor: e.target.value.toLowerCase(),
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -428,41 +637,45 @@ export const OnboardingTab = () => {
             </div>
           </div>
         </div>
-        <MobilePreviewPlaceholder title={`Slide ${activeSlide} Preview`}>
-          <div className="flex flex-col items-center gap-3 p-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-lg border-2 border-dashed border-white/30 bg-white/10">
-              <span className="text-center text-xs text-white/70">
-                Illustration
-              </span>
-            </div>
-            <p className="text-center text-sm font-bold text-white">
-              Unlock so much more, grow your finance
-            </p>
-            <p className="text-center text-xs text-white/80">
-              You can open a store in seconds and start selling to millions.
-            </p>
-            <button
-              type="button"
-              className="mt-2 rounded-full bg-[#2563EB] px-5 py-2 text-xs font-semibold text-white"
-            >
-              Get Started →
-            </button>
-          </div>
-        </MobilePreviewPlaceholder>
+        <OnboardingScreenPreview
+          slideLabel={`Slide ${activeSlideIndex + 1} Preview`}
+          bgPrimaryColor={bgPrimaryColor}
+          bgSecondaryColor={bgSecondaryColor}
+          titleColor={textPrimaryColor}
+          subtitleColor={textSecondaryColor}
+          title={titleText}
+          subtitle={subtitleText}
+          buttonText={buttonText}
+          buttonPrimaryColor={buttonPrimaryColor}
+          buttonSecondaryColor={buttonSecondaryColor}
+          buttonTextColor={buttonTextColor}
+          uploadedImage={uploadedImage}
+          className="h-auto w-[320px] max-w-full"
+        />
       </div>
       <div className="mt-8 flex gap-3">
         <button
           type="button"
-          className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-6 py-2 text-sm font-semibold text-[#111827]"
+          onClick={handlePreviousSlide}
+          className={clsx(
+            "rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-6 py-2 text-sm font-semibold text-[#111827]",
+          )}
         >
           Previous
         </button>
-        <PrimaryButton className="bg-[#111827] px-8">Next</PrimaryButton>
+        <PrimaryButton
+          className="bg-[#111827] px-8"
+          onClick={handleNextSlide}
+        >
+          Next
+        </PrimaryButton>
         <button
           type="button"
+          onClick={onSave}
+          disabled={saving}
           className="rounded-lg border border-[#111827] px-6 py-2 text-sm font-semibold text-[#111827]"
         >
-          Save
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

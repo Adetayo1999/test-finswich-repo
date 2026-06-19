@@ -1,5 +1,7 @@
 import { FaUserLarge } from "react-icons/fa6";
 import { Link, Outlet } from "react-router-dom";
+import { useCurrentUser } from "@/hooks/api/useCurrentUser";
+import { getAuthSession } from "@/lib/auth-session";
 import { ROUTES } from "@/routes/paths";
 import HorizontalNav from "../common/horizontal-nav";
 
@@ -9,6 +11,13 @@ const APPS_NAV_LINKS = [
 ];
 
 const Header = () => {
+  const { data: currentUser } = useCurrentUser();
+  const sessionUser = getAuthSession()?.user;
+  const user = currentUser ?? sessionUser;
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : "Account";
+
   return (
     <div className="bg-[#15162CDB] px-10 py-6">
       <header className=" flex justify-between gap-x-10 items-center container mx-auto">
@@ -65,7 +74,7 @@ const Header = () => {
 
         <div className="">
           <button className="flex items-center gap-x-2.5 text-sm cursor-pointer">
-            <span className="text-[#969696] font-bold">Covalley</span>
+            <span className="text-[#969696] font-bold">{displayName}</span>
             <span className="bg-[#F7F9FB] rounded-full flex justify-center items-center h-9 w-9">
               <FaUserLarge />
             </span>

@@ -1,8 +1,18 @@
+import { getAuthSession } from "@/lib/auth-session";
+import { useCurrentUser } from "@/hooks/api/useCurrentUser";
 import { Link, Outlet } from "react-router-dom";
-import { FaUserLarge } from "react-icons/fa6";
+import { FaGrip, FaUserLarge } from "react-icons/fa6";
 import { DashboardSidebar } from "./Sidebar";
+import { ROUTES } from "@/routes/paths";
 
 const DashboardHeader = () => {
+  const { data: currentUser } = useCurrentUser();
+  const sessionUser = getAuthSession()?.user;
+  const user = currentUser ?? sessionUser;
+  const displayName = user
+    ? `${user.firstName} ${user.lastName}`.trim()
+    : "Account";
+
   return (
     <div className="px-10  py-5 flex justify-between gap-x-10 items-center border-b border-[#F1F1F1] bg-white">
       <div className="flex-1 flex justify-between items-center">
@@ -32,6 +42,14 @@ const DashboardHeader = () => {
         </div>
 
         <div className="flex items-center gap-x-6">
+          <Link
+            to={ROUTES.APPS.ROOT}
+            className="flex items-center gap-2 rounded-lg border border-[#E4E7EC] bg-[#F7F9FB] px-3.5 py-2 text-sm font-semibold text-[#344054] transition hover:border-[#5B26EF]/30 hover:bg-[#F3F0FF] hover:text-[#5B26EF]"
+          >
+            <FaGrip className="h-3.5 w-3.5" />
+            <span>Apps</span>
+          </Link>
+
           <button className="flex items-center gap-x-3 text-sm">
             <span>
               <svg
@@ -75,7 +93,7 @@ const DashboardHeader = () => {
       </div>
       <div className="flex-[0.25] flex justify-center">
         <button className="flex items-center gap-x-2.5 text-sm cursor-pointer">
-          <span className="text-[#767680] font-bold">Covalley</span>
+          <span className="text-[#767680] font-bold">{displayName}</span>
           <span className="bg-[#F7F9FB] rounded-full flex justify-center items-center h-9 w-9">
             <FaUserLarge />
           </span>

@@ -1,66 +1,104 @@
 import clsx from "clsx";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import type { MerchantAppConfig } from "@/api/merchants";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
 import { ConfigureAppModal } from "@/components/modals/configure-app";
+import {
+  useMerchantAppConfigs,
+  useMerchantApps,
+  usePublishMerchantAppConfig,
+} from "@/hooks/api/useMerchantApps";
 
-type VersionRow = {
-  id: string;
-  versionRef: string;
-  variance: string[];
-  lastUpdated: string;
-  date: string;
-  status: "Publish" | "Current" | "Archived";
+const sectionLabels: Record<string, string> = {
+  app_assets: "Assets",
+  splash_screen: "Splash",
+  onboarding: "Onboarding",
+  policy_terms: "Terms",
+  support: "Support",
 };
 
-const recentUnpublished: VersionRow[] = [
-  {
-    id: "recent-1",
-    versionRef: "App_update_1aa344",
-    variance: ["Splash", "Profile", "DNS", "Terms"],
-    lastUpdated: "5min ago",
-    date: "Apr 12, 2025",
-    status: "Publish",
-  },
-];
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
 
-const previousPublished: VersionRow[] = [
-  {
-    id: "prev-current",
-    versionRef: "App_update_1aa344",
-    variance: ["Splash", "Profile", "Terms"],
-    lastUpdated: "5min ago",
-    date: "Apr 12, 2025",
-    status: "Current",
-  },
-  {
-    id: "prev-1",
-    versionRef: "App_update_1aa344",
-    variance: ["Profile", "About", "Terms"],
-    lastUpdated: "5min ago",
-    date: "Apr 12, 2025",
-    status: "Archived",
-  },
-  {
-    id: "prev-2",
-    versionRef: "App_update_1aa344",
-    variance: ["Splash", "Profile", "DNS", "Terms"],
-    lastUpdated: "5min ago",
-    date: "Apr 12, 2025",
-    status: "Archived",
-  },
-  {
-    id: "prev-3",
-    versionRef: "App_update_1aa344",
-    variance: ["Splash", "Profile", "DNS", "Terms"],
-    lastUpdated: "5min ago",
-    date: "Apr 12, 2025",
-    status: "Archived",
-  },
-];
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatRelativeTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  const diffInSeconds = Math.round((date.getTime() - Date.now()) / 1000);
+  const units: Array<[Intl.RelativeTimeFormatUnit, number]> = [
+    ["year", 60 * 60 * 24 * 365],
+    ["month", 60 * 60 * 24 * 30],
+    ["day", 60 * 60 * 24],
+    ["hour", 60 * 60],
+    ["minute", 60],
+  ];
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
+
+  for (const [unit, secondsInUnit] of units) {
+    const valueInUnit = Math.trunc(diffInSeconds / secondsInUnit);
+    if (Math.abs(valueInUnit) >= 1) {
+      return formatter.format(valueInUnit, unit);
+    }
+  }
+
+  return "just now";
+}
+
+function getVariance(configData: Record<string, unknown>) {
+  const labels = Object.keys(configData)
+    .filter((key) => configData[key] !== undefined && configData[key] !== null)
+    .map((key) => sectionLabels[key] ?? key.replace(/_/g, " "));
+
+  return labels.length > 0 ? labels : ["Config"];
+}
 
 const AppBuilderPage = () => {
+  const { appId } = useParams();
   const [showConfigure, setShowConfigure] = useState(false);
+  const configsQuery = useMerchantAppConfigs(appId);
+  const publishConfig = usePublishMerchantAppConfig();
+  const { data: apps = [] } = useMerchantApps();
+
+  const app = apps.find((item) => item.id === appId);
+  const configs = configsQuery.data ?? [];
+  const unpublishedConfigs = configs.filter((config) => !config.isPublished);
+  const publishedConfigs = configs.filter((config) => config.isPublished);
+  const error =
+    configsQuery.error instanceof Error ? configsQuery.error.message : undefined;
+
+  const handlePublishConfig = (configId: string) => {
+    if (!appId) {
+      toast.error("App not found. Please reopen this dashboard from an app.");
+      return;
+    }
+
+    publishConfig.mutate(
+      { appId, configId },
+      {
+        onSuccess: (response) => {
+          toast.success(response.message || "App configuration published");
+        },
+        onError: (publishError) => {
+          toast.error(
+            publishError instanceof Error
+              ? publishError.message
+              : "Failed to publish app configuration",
+          );
+        },
+      },
+    );
+  };
 
   return (
     <>
@@ -77,111 +115,157 @@ const AppBuilderPage = () => {
           <PrimaryButton
             className="px-10!"
             onClick={() => setShowConfigure(true)}
+            disabled={!appId}
           >
             Configure App
           </PrimaryButton>
         </div>
 
-      <section className="mb-10">
-        <h2 className="mb-3 text-sm font-semibold text-[#1C1C1C]">
-          Recent &amp; Unpublished
-        </h2>
-        <div className="overflow-hidden rounded-2xl border border-[#EAECF0] bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-[#F9FAFB] text-xs text-[#667085]">
-              <tr>
-                <th className="px-6 py-3 text-left font-medium">Version Ref</th>
-                <th className="px-6 py-3 text-left font-medium">
-                  Update Variance
-                </th>
-                <th className="px-6 py-3 text-left font-medium">
-                  Last Updated
-                </th>
-                <th className="px-6 py-3 text-left font-medium">Date</th>
-                <th className="px-6 py-3 font-medium text-right">
-                  Publish
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentUnpublished.map((row) => (
-                <tr key={row.id} className="border-t border-[#EAECF0]">
-                  <td className="px-6 py-4 text-[#101828]">
-                    {row.versionRef}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-2">
-                      {row.variance.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full bg-[#111827] px-3 py-1 text-xs font-semibold text-white"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-[#667085]">
-                    {row.lastUpdated}
-                  </td>
-                  <td className="px-6 py-4 text-[#667085]">{row.date}</td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      type="button"
-                      className="rounded-full bg-[#111827] px-4 py-1.5 text-xs font-semibold text-white"
-                    >
-                      Publish
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+        <ConfigTableSection
+          title="Recent & Unpublished"
+          configs={unpublishedConfigs}
+          loading={configsQuery.isLoading}
+          error={error}
+          onRetry={() => configsQuery.refetch()}
+          action="publish"
+          onPublishConfig={handlePublishConfig}
+          publishingConfigId={
+            publishConfig.isPending
+              ? publishConfig.variables?.configId
+              : undefined
+          }
+        />
 
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-[#1C1C1C]">
-          Previous Published Version
-        </h2>
-        <div className="overflow-hidden rounded-2xl border border-[#EAECF0] bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-[#F9FAFB] text-xs text-[#667085]">
-              <tr>
-                <th className="px-6 py-3 text-left font-medium">Version Ref</th>
-                <th className="px-6 py-3 text-left font-medium">
-                  Update Variance
-                </th>
-                <th className="px-6 py-3 text-left font-medium">
-                  Last Updated
-                </th>
-                <th className="px-6 py-3 text-left font-medium">Date</th>
-                <th className="px-6 py-3 font-medium text-right">
-                  Publish
-                </th>
-                <th className="px-6 py-3" />
+        <ConfigTableSection
+          title="Previous Published Version"
+          configs={publishedConfigs}
+          loading={configsQuery.isLoading}
+          error={error}
+          onRetry={() => configsQuery.refetch()}
+          action="status"
+        />
+      </div>
+
+      <AnimatePresence>
+        {showConfigure && appId && (
+          <ConfigureAppModal
+            app={{ id: appId, name: app?.name ?? "App" }}
+            onClose={() => setShowConfigure(false)}
+          />
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+type ConfigTableSectionProps = {
+  title: string;
+  configs: MerchantAppConfig[];
+  loading: boolean;
+  error?: string;
+  action: "publish" | "status";
+  onRetry: () => void;
+  onPublishConfig?: (configId: string) => void;
+  publishingConfigId?: string;
+};
+
+const ConfigTableSection = ({
+  title,
+  configs,
+  loading,
+  error,
+  action,
+  onRetry,
+  onPublishConfig,
+  publishingConfigId,
+}: ConfigTableSectionProps) => (
+  <section className="mb-10">
+    <h2 className="mb-3 text-sm font-semibold text-[#1C1C1C]">{title}</h2>
+    <div className="overflow-hidden rounded-2xl border border-[#EAECF0] bg-white">
+      <table className="w-full text-sm">
+        <thead className="bg-[#F9FAFB] text-xs text-[#667085]">
+          <tr>
+            <th className="px-6 py-3 text-left font-medium">Version Ref</th>
+            <th className="px-6 py-3 text-left font-medium">
+              Update Variance
+            </th>
+            <th className="px-6 py-3 text-left font-medium">Last Updated</th>
+            <th className="px-6 py-3 text-left font-medium">Date</th>
+            <th className="px-6 py-3 text-right font-medium">
+              {action === "publish" ? "Publish" : "Status"}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {loading &&
+            Array.from({ length: 2 }).map((_, rowIndex) => (
+              <tr
+                key={`loading-${rowIndex}`}
+                className="border-t border-[#EAECF0]"
+              >
+                {Array.from({ length: 5 }).map((__, cellIndex) => (
+                  <td key={cellIndex} className="px-6 py-4">
+                    <div className="h-4 w-full max-w-32 animate-pulse rounded bg-[#E5E7EB]" />
+                  </td>
+                ))}
               </tr>
-            </thead>
-            <tbody>
-              {previousPublished.map((row) => (
+            ))}
+
+          {!loading && error && (
+            <tr className="border-t border-[#EAECF0]">
+              <td colSpan={5} className="px-6 py-10 text-center">
+                <p className="mb-3 text-sm font-semibold text-[#111827]">
+                  Failed to load configurations
+                </p>
+                <p className="mx-auto mb-4 max-w-md text-sm text-[#667085]">
+                  {error}
+                </p>
+                <button
+                  type="button"
+                  onClick={onRetry}
+                  className="rounded-lg bg-[#111827] px-4 py-2 text-sm font-semibold text-white"
+                >
+                  Try again
+                </button>
+              </td>
+            </tr>
+          )}
+
+          {!loading && !error && configs.length === 0 && (
+            <tr className="border-t border-[#EAECF0]">
+              <td
+                colSpan={5}
+                className="px-6 py-10 text-center text-sm text-[#667085]"
+              >
+                No configurations found.
+              </td>
+            </tr>
+          )}
+
+          {!loading &&
+            !error &&
+            configs.map((config, index) => {
+              const isCurrent = action === "status" && index === 0;
+
+              return (
                 <tr
-                  key={row.id}
+                  key={config.id}
                   className={clsx(
                     "border-t border-[#EAECF0]",
-                    row.status === "Current" && "bg-[#E3F9E5]",
+                    isCurrent && "bg-[#E3F9E5]",
                   )}
                 >
                   <td className="px-6 py-4 text-[#101828]">
-                    {row.versionRef}
+                    {config.versionRef}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-wrap gap-2">
-                      {row.variance.map((item) => (
+                      {getVariance(config.configData).map((item) => (
                         <span
                           key={item}
                           className={clsx(
-                            "rounded-full px-3 py-1 text-xs font-semibold",
-                            row.status === "Current"
+                            "rounded-full px-3 py-1 text-xs font-semibold capitalize",
+                            isCurrent
                               ? "bg-[#111827] text-white"
                               : "bg-[#E5E7EB] text-[#374151]",
                           )}
@@ -192,43 +276,41 @@ const AppBuilderPage = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-[#667085]">
-                    {row.lastUpdated}
+                    {formatRelativeTime(config.updatedAt)}
                   </td>
-                  <td className="px-6 py-4 text-[#667085]">{row.date}</td>
+                  <td className="px-6 py-4 text-[#667085]">
+                    {formatDate(config.createdAt)}
+                  </td>
                   <td className="px-6 py-4 text-right">
-                    {row.status === "Current" ? (
-                      <span className="inline-flex rounded-full bg-[#16A34A] px-4 py-1.5 text-xs font-semibold text-white">
-                        Current
-                      </span>
+                    {action === "publish" ? (
+                      <button
+                        type="button"
+                        onClick={() => onPublishConfig?.(config.id)}
+                        disabled={publishingConfigId === config.id}
+                        className="rounded-full bg-[#111827] px-4 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {publishingConfigId === config.id
+                          ? "Publishing..."
+                          : "Publish"}
+                      </button>
                     ) : (
-                      <span className="inline-flex rounded-full bg-[#DC2626] px-4 py-1.5 text-xs font-semibold text-white">
-                        Archived
+                      <span
+                        className={clsx(
+                          "inline-flex rounded-full px-4 py-1.5 text-xs font-semibold text-white",
+                          isCurrent ? "bg-[#16A34A]" : "bg-[#DC2626]",
+                        )}
+                      >
+                        {isCurrent ? "Current" : "Archived"}
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      type="button"
-                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#E5E7EB] text-xl text-[#4B5563]"
-                    >
-                      &#8226;&#8226;&#8226;
-                    </button>
-                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      </div>
-
-      <AnimatePresence>
-        {showConfigure && (
-          <ConfigureAppModal onClose={() => setShowConfigure(false)} />
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
+              );
+            })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+);
 
 export default AppBuilderPage;

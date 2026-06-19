@@ -5,6 +5,8 @@ interface SimpleWysiwygProps {
   className?: string;
   minHeight?: string;
   defaultContent?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 export const SimpleWysiwyg = ({
@@ -12,14 +14,24 @@ export const SimpleWysiwyg = ({
   className = "",
   minHeight = "200px",
   defaultContent = "",
+  value,
+  onChange,
 }: SimpleWysiwygProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<"visual" | "text">("visual");
-  const [content, setContent] = useState(defaultContent);
+  const [internalContent, setInternalContent] = useState(defaultContent);
+  const content = value ?? internalContent;
+
+  const updateContent = (nextContent: string) => {
+    if (value === undefined) {
+      setInternalContent(nextContent);
+    }
+    onChange?.(nextContent);
+  };
 
   const exec = (cmd: string, value?: string) => {
     document.execCommand(cmd, false, value);
-    setContent(editorRef.current?.innerHTML ?? "");
+    updateContent(editorRef.current?.innerHTML ?? "");
     editorRef.current?.focus();
   };
 
@@ -142,7 +154,7 @@ export const SimpleWysiwyg = ({
           ref={editorRef}
           contentEditable
           data-placeholder={placeholder}
-          onInput={() => setContent(editorRef.current?.innerHTML ?? "")}
+          onInput={() => updateContent(editorRef.current?.innerHTML ?? "")}
           className="min-w-0 px-5 py-4 text-base leading-9 text-[#374151] outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[#9CA3AF]"
           style={{ minHeight }}
           suppressContentEditableWarning
@@ -150,7 +162,9 @@ export const SimpleWysiwyg = ({
       ) : (
         <textarea
           value={plainText}
-          onChange={(e) => setContent(e.target.value.replace(/\n/g, "<br />"))}
+          onChange={(e) =>
+            updateContent(e.target.value.replace(/\n/g, "<br />"))
+          }
           className="min-h-[240px] w-full resize-none px-5 py-4 text-base leading-8 text-[#374151] outline-none"
           style={{ minHeight }}
         />

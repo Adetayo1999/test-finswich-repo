@@ -1,15 +1,50 @@
+import type { MerchantApp } from "@/api/merchants";
 import { CustomTable } from "../common/custom-table";
 import { appsAdminColumns, appsAdminData } from "./apps-admin-data";
-import { data, getAppColumns } from "./apps-data";
+import { getAppColumns } from "./apps-data";
 
 interface AppsTableProps {
-  onConfigure?: () => void;
+  apps: MerchantApp[];
+  isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  onRetry?: () => void;
+  superAdminEmail?: string;
+  deletingAppId?: string;
+  onConfigure?: (app: MerchantApp) => void;
+  onDelete?: (app: MerchantApp) => void;
 }
 
-export const AppsTable = ({ onConfigure }: AppsTableProps) => {
+export const AppsTable = ({
+  apps,
+  isLoading,
+  isError,
+  errorMessage,
+  onRetry,
+  superAdminEmail,
+  deletingAppId,
+  onConfigure,
+  onDelete,
+}: AppsTableProps) => {
   return (
     <div className="">
-      <CustomTable columns={getAppColumns(onConfigure)} data={data} />
+      <CustomTable
+        columns={getAppColumns(
+          superAdminEmail,
+          onConfigure,
+          onDelete,
+          deletingAppId,
+        )}
+        data={apps}
+        loading={isLoading}
+        error={
+          isError
+            ? errorMessage || "Something went wrong while loading your apps."
+            : undefined
+        }
+        onRetry={onRetry}
+        placeholderText="No apps yet. Create your first app to get started."
+      />
     </div>
   );
 };

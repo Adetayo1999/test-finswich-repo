@@ -1,5 +1,8 @@
 import { useState } from "react";
 import clsx from "clsx";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import type { MerchantApp } from "@/api/merchants";
 import ModalWrapper from "../common/modal";
 import { ModalCheckbox } from "../common/modal/form";
 import { PrimaryButton } from "../ui/PrimaryButton";
@@ -7,6 +10,12 @@ import TemplatesIcon from "@/assets/prebuilt-img.svg";
 import BuildUiIcon from "@/assets/build-ui.svg";
 import OnPremIcon from "@/assets/on-premise-img.svg";
 import appsSuccessImg from "@/assets/apps-success.png";
+import { useCreateMerchantApp } from "@/hooks/api/useMerchantApps";
+import {
+  createAppFormRules,
+  slugifyAppName,
+  type CreateAppFormValues,
+} from "@/pages/apps/create-app-form";
 
 type PlanKey = "templates" | "custom-ui" | "on-premise";
 
@@ -108,11 +117,58 @@ interface CreateAppModalProps {
   onClose?: () => void;
 }
 
+const inputClassName =
+  "h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none";
+
 const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
   const [step, setStep] = useState<"plans" | "form" | "success">("plans");
   const [expanded, setExpanded] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("templates");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [createdApp, setCreatedApp] = useState<MerchantApp | null>(null);
+
+  const createApp = useCreateMerchantApp();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm<CreateAppFormValues>({
+    defaultValues: {
+      name: "",
+      websiteUrl: "",
+      alias: "",
+      description: "",
+      subdomain: "",
+    },
+  });
+
+  const appName = watch("name");
+  const subdomain = watch("subdomain");
+
+  const handleNameChange = (value: string) => {
+    const slug = slugifyAppName(value);
+    if (slug) {
+      setValue("alias", slug, { shouldValidate: true });
+      setValue("subdomain", slug.replace(/-/g, ""), { shouldValidate: true });
+    }
+  };
+
+  const onSubmit = (values: CreateAppFormValues) => {
+    createApp.mutate(values, {
+      onSuccess: (response) => {
+        setCreatedApp(response.data.app);
+        toast.success(response.message || "App created successfully");
+        setStep("success");
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error ? error.message : "Failed to create app",
+        );
+      },
+    });
+  };
 
   const toggleService = (label: string) => {
     setSelectedServices((prev) =>
@@ -376,7 +432,11 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
         )}
 
         {step === "form" && (
-          <div className="mt-4 space-y-6">
+          <form
+            className="mt-4 space-y-6"
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+          >
             <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-10 items-start">
               {/* Left section */}
               <div className="space-y-6">
@@ -387,19 +447,68 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
                   <input
                     type="text"
                     placeholder="Enter your app name"
-                    className="h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none"
+                    className={inputClassName}
+                    {...register("name", {
+                      ...createAppFormRules.name,
+                      onChange: (event) => handleNameChange(event.target.value),
+                    })}
                   />
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-[#DC2626]">
+                      {errors.name.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#767680]">
-                    Company name (as registered)
+                    Website URL
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://www.example.com"
+                    className={inputClassName}
+                    {...register("websiteUrl", createAppFormRules.websiteUrl)}
+                  />
+                  {errors.websiteUrl && (
+                    <p className="mt-1 text-xs text-[#DC2626]">
+                      {errors.websiteUrl.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#767680]">
+                    App Alias
                   </label>
                   <input
                     type="text"
-                    placeholder="Enter company name"
-                    className="h-11 w-full rounded-xl border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none"
+                    placeholder="app-alias"
+                    className={inputClassName}
+                    {...register("alias", createAppFormRules.alias)}
                   />
+                  {errors.alias && (
+                    <p className="mt-1 text-xs text-[#DC2626]">
+                      {errors.alias.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#767680]">
+                    Subdomain
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="appname"
+                    className={inputClassName}
+                    {...register("subdomain", createAppFormRules.subdomain)}
+                  />
+                  {errors.subdomain && (
+                    <p className="mt-1 text-xs text-[#DC2626]">
+                      {errors.subdomain.message}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -428,7 +537,13 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
                     rows={4}
                     placeholder="Description of product"
                     className="w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#111827] outline-none resize-none"
+                    {...register("description", createAppFormRules.description)}
                   />
+                  {errors.description && (
+                    <p className="mt-1 text-xs text-[#DC2626]">
+                      {errors.description.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -456,7 +571,9 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
                       URL is available
                     </p>
                     <p className="font-bold text-sm text-[#0F0F0F]">
-                      https://app-name.bankiffy.com
+                      {subdomain
+                        ? `https://${subdomain}.springtd.com`
+                        : "https://your-app.springtd.com"}
                     </p>
                   </div>
                 </div>
@@ -558,7 +675,7 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-[#606060] mb-1.5">
-                        Omanga Integrated Service
+                        {appName || "Your App Name"}
                       </h3>
                       <p className="text-xs text-[#606060]">
                         This is the name that will show when customers of other
@@ -628,13 +745,14 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
 
             <div className="pt-4 flex">
               <PrimaryButton
+                type="submit"
                 className="bg-[#111827] text-sm!"
-                onClick={() => setStep("success")}
+                disabled={createApp.isPending}
               >
-                Get Started
+                {createApp.isPending ? "Creating..." : "Get Started"}
               </PrimaryButton>
             </div>
-          </div>
+          </form>
         )}
 
         {step === "success" && (
@@ -650,9 +768,17 @@ const CreateAppModal: React.FC<CreateAppModalProps> = ({ onClose }) => {
               Created Successfully
             </h1>
             <p className="mb-3  text-[#606060] text-center max-w-md">
-              Your App has been created successfully. Before your app can be
-              published, you need to complete a few configurations.
+              {createdApp?.name
+                ? `"${createdApp.name}" has been created successfully.`
+                : "Your app has been created successfully."}{" "}
+              Before your app can be published, you need to complete a few
+              configurations.
             </p>
+            {createdApp?.subdomainUrl && (
+              <p className="mb-3 text-sm font-semibold text-[#111827]">
+                {createdApp.subdomainUrl}
+              </p>
+            )}
             <div className="mt-4 flex gap-x-5">
               <PrimaryButton className="px-10! bg-[#111827] ">
                 Start Configuration

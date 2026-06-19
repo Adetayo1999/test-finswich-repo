@@ -1,13 +1,35 @@
-import { useRef, useState } from "react";
-import { MobilePreviewPlaceholder } from "@/components/configure-app/MobilePreviewPlaceholder";
+import { useRef } from "react";
+import { SplashScreenPreview } from "@/components/configure-app/SplashScreenPreview";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import type { SplashScreenConfig } from "../config-data";
 
-export const SplashTab = () => {
-  const [bgColor, setBgColor] = useState("#080C24");
-  const [textColor, setTextColor] = useState("#2563EB");
+type SplashTabProps = {
+  appName?: string;
+  value: SplashScreenConfig;
+  onChange: (value: SplashScreenConfig) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  onSave: () => void;
+  saving?: boolean;
+};
 
+export const SplashTab = ({
+  appName = "Your App",
+  value,
+  onChange,
+  onPrevious,
+  onNext,
+  onSave,
+  saving,
+}: SplashTabProps) => {
   const bgInputRef = useRef<HTMLInputElement | null>(null);
   const textInputRef = useRef<HTMLInputElement | null>(null);
+  const bgColor = value.background_color;
+  const textColor = value.text_color;
+
+  const updateValue = (patch: Partial<SplashScreenConfig>) => {
+    onChange({ ...value, ...patch });
+  };
 
   return (
     <div className="w-full">
@@ -57,7 +79,9 @@ export const SplashTab = () => {
                   type="color"
                   className="hidden"
                   value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
+                  onChange={(e) =>
+                    updateValue({ background_color: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -111,7 +135,9 @@ export const SplashTab = () => {
                   type="color"
                   className="hidden"
                   value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
+                  onChange={(e) =>
+                    updateValue({ text_color: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -124,39 +150,46 @@ export const SplashTab = () => {
             <textarea
               rows={3}
               placeholder="Enter any text or leave it empty"
+              value={value.text_description}
+              onChange={(event) =>
+                updateValue({ text_description: event.target.value })
+              }
               className="w-full rounded-xl border border-[#E5E7EB] bg-white px-3 py-2 text-sm outline-none resize-none"
             />
           </div>
         </div>
 
-        <MobilePreviewPlaceholder title="Mobile Preview">
-          <div className="flex flex-col items-center gap-4">
-            <div
-              className="flex h-16 w-16 items-center justify-center rounded-xl border-2 border-dashed border-white/30 bg-white/10"
-              style={{ backgroundColor: bgColor }}
-            >
-              <span className="text-xs text-white/80">Your LOGO</span>
-            </div>
-            <p className="text-center text-xs" style={{ color: textColor }}>
-              Powered by {"{App Name}"}
-            </p>
-          </div>
-        </MobilePreviewPlaceholder>
+        <div className="flex flex-col items-center">
+          {/* <h3 className="mb-3 w-full text-left text-sm font-semibold text-[#111827]">
+            Mobile Preview
+          </h3> */}
+          <SplashScreenPreview
+            bgColor={bgColor}
+            textColor={textColor}
+            appName={appName}
+            className="h-auto w-[250px] max-w-full"
+          />
+        </div>
       </div>
 
       <div className="mt-8 flex gap-3">
         <button
           type="button"
+          onClick={onPrevious}
           className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-6 py-2 text-sm font-semibold text-[#111827]"
         >
           Previous
         </button>
-        <PrimaryButton className="bg-[#111827] px-8">Next</PrimaryButton>
+        <PrimaryButton className="bg-[#111827] px-8" onClick={onNext}>
+          Next
+        </PrimaryButton>
         <button
           type="button"
+          onClick={onSave}
+          disabled={saving}
           className="rounded-lg border border-[#111827] px-6 py-2 text-sm font-semibold text-[#111827]"
         >
-          Save
+          {saving ? "Saving..." : "Save"}
         </button>
       </div>
     </div>

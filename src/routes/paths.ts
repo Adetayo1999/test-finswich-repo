@@ -1,3 +1,6 @@
+const dashboardPath = (appId: string, path = "") =>
+  `/dashboard/${encodeURIComponent(appId)}${path}`;
+
 export const ROUTES = {
   // root
   HOME: "/",
@@ -28,55 +31,65 @@ export const ROUTES = {
   },
 
   DASHBOARD: {
-    ROOT: "/dashboard",
+    ROOT: "/dashboard/:appId",
+    forApp: (appId: string) => dashboardPath(appId),
     OVERVIEW: {
-      ROOT: "/dashboard/overview",
+      ROOT: (appId: string) => dashboardPath(appId, "/overview"),
     },
     WALLETS: {
-      ROOT: "/dashboard/wallets",
-      BILLING: "/dashboard/wallets",
-      SETTLEMENT: "/dashboard/wallets/settlement",
-      KYC: "/dashboard/wallets/kyc",
+      ROOT: (appId: string) => dashboardPath(appId, "/wallets"),
+      BILLING: (appId: string) => dashboardPath(appId, "/wallets"),
+      SETTLEMENT: (appId: string) =>
+        dashboardPath(appId, "/wallets/settlement"),
+      KYC: (appId: string) => dashboardPath(appId, "/wallets/kyc"),
     },
     TRANSACTIONS: {
-      ROOT: "/dashboard/transactions",
-      PAYIN: "/dashboard/transactions",
-      PAYOUT: "/dashboard/transactions/payout",
+      ROOT: (appId: string) => dashboardPath(appId, "/transactions"),
+      PAYIN: (appId: string) => dashboardPath(appId, "/transactions"),
+      PAYOUT: (appId: string) =>
+        dashboardPath(appId, "/transactions/payout"),
     },
     RESOLUTION: {
-      ROOT: "/dashboard/resolution",
-      ALL_ISSUES: "/dashboard/resolution",
-      WORKFLOW: "/dashboard/resolution/workflow",
+      ROOT: (appId: string) => dashboardPath(appId, "/resolution"),
+      ALL_ISSUES: (appId: string) => dashboardPath(appId, "/resolution"),
+      WORKFLOW: (appId: string) =>
+        dashboardPath(appId, "/resolution/workflow"),
     },
     SERVICES: {
-      ROOT: "/dashboard/services",
+      ROOT: (appId: string) => dashboardPath(appId, "/services"),
     },
     CUSTOMERS: {
-      ROOT: "/dashboard/customers",
+      ROOT: (appId: string) => dashboardPath(appId, "/customers"),
     },
     ESTORES: {
-      ROOT: "/dashboard/e-stores",
-      STORES: "/dashboard/e-stores",
-      CATALOGS: "/dashboard/e-stores/catalogs",
-      CATEGORIES: "/dashboard/e-stores/categories",
-      PRODUCTS: "/dashboard/e-stores/products",
-      ORDERS: "/dashboard/e-stores/orders",
+      ROOT: (appId: string) => dashboardPath(appId, "/e-stores"),
+      STORES: (appId: string) => dashboardPath(appId, "/e-stores"),
+      CATALOGS: (appId: string) => dashboardPath(appId, "/e-stores/catalogs"),
+      CATEGORIES: (appId: string) =>
+        dashboardPath(appId, "/e-stores/categories"),
+      PRODUCTS: (appId: string) => dashboardPath(appId, "/e-stores/products"),
+      ORDERS: (appId: string) => dashboardPath(appId, "/e-stores/orders"),
     },
     APP_BUILDER: {
-      ROOT: "/dashboard/app-builder",
+      ROOT: (appId: string) => dashboardPath(appId, "/app-builder"),
     },
     BILLING: {
-      ROOT: "/dashboard/billing",
+      ROOT: (appId: string) => dashboardPath(appId, "/billing"),
     },
     SETTINGS: {
-      ROOT: "/dashboard/settings",
-      ACCOUNT: "/dashboard/settings",
-      LOGIN_SECURITY: "/dashboard/settings/login-security",
-      FAQ: "/dashboard/settings/faq",
-      DEVELOPER: "/dashboard/settings/developer",
-      CONTACT_SUPPORT: "/dashboard/settings/contact-support",
-      TC_POLICY: "/dashboard/settings/tc-policy",
-      ACCOUNT_CONTROL: "/dashboard/settings/account-control",
+      ROOT: (appId: string) => dashboardPath(appId, "/settings"),
+      ACCOUNT: (appId: string) => dashboardPath(appId, "/settings"),
+      LOGIN_SECURITY: (appId: string) =>
+        dashboardPath(appId, "/settings/login-security"),
+      FAQ: (appId: string) => dashboardPath(appId, "/settings/faq"),
+      DEVELOPER: (appId: string) =>
+        dashboardPath(appId, "/settings/developer"),
+      CONTACT_SUPPORT: (appId: string) =>
+        dashboardPath(appId, "/settings/contact-support"),
+      TC_POLICY: (appId: string) =>
+        dashboardPath(appId, "/settings/tc-policy"),
+      ACCOUNT_CONTROL: (appId: string) =>
+        dashboardPath(appId, "/settings/account-control"),
     },
   },
 } as const;

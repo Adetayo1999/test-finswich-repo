@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { ROUTES } from "./paths";
 import SuspenseWrapper from "@/components/common/SuspenseWrapper";
+import { RequireAuth } from "@/routes/RequireAuth";
+import { RootRedirect } from "@/routes/RootRedirect";
 import * as pages from "./pages";
 
 const getElement = (
@@ -16,7 +18,7 @@ const getElement = (
 export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
-    element: <Navigate to={ROUTES.DASHBOARD.OVERVIEW.ROOT} replace />,
+    element: <RootRedirect />,
   },
   {
     path: ROUTES.AUTH.ROOT,
@@ -63,9 +65,22 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: ROUTES.ONBOARDING.ROOT,
-    element: getElement(pages.OnboardingLayout),
+    path: "/dashboard",
+    element: <RequireAuth />,
     children: [
+      {
+        index: true,
+        element: <Navigate to={ROUTES.APPS.ROOT} replace />,
+      },
+    ],
+  },
+  {
+    path: ROUTES.ONBOARDING.ROOT,
+    element: <RequireAuth />,
+    children: [
+      {
+        element: getElement(pages.OnboardingLayout),
+        children: [
       {
         index: true,
         element: <Navigate to={ROUTES.ONBOARDING.LICENSE_STATUS} replace />,
@@ -94,15 +109,20 @@ export const router = createBrowserRouter([
         path: "company-documents",
         element: getElement(pages.CompanyDocumentsPage),
       },
+        ],
+      },
     ],
   },
   {
     path: ROUTES.DASHBOARD.ROOT,
-    element: getElement(pages.DashboardLayout),
+    element: <RequireAuth />,
     children: [
       {
+        element: getElement(pages.DashboardLayout),
+        children: [
+      {
         index: true,
-        element: <Navigate to={ROUTES.DASHBOARD.OVERVIEW.ROOT} replace />,
+        element: <Navigate to="overview" replace />,
       },
       {
         path: "overview",
@@ -195,6 +215,8 @@ export const router = createBrowserRouter([
             path: "account-control",
             element: getElement(pages.AccountControlPage),
           },
+        ],
+      },
         ],
       },
     ],

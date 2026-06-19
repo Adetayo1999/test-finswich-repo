@@ -11,6 +11,8 @@ interface CustomTableProps<T> {
   columns: any;
   data: T[];
   loading?: boolean;
+  error?: string;
+  onRetry?: () => void;
   placeholderText?: string;
 }
 
@@ -18,6 +20,8 @@ export const CustomTable = <T,>({
   columns,
   data,
   loading,
+  error,
+  onRetry,
   placeholderText = "No Data",
 }: CustomTableProps<T>) => {
   const table = useReactTable({
@@ -26,10 +30,16 @@ export const CustomTable = <T,>({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const columnCount = table.getAllColumns().length;
+  const showEmptyState = !loading && !error && data.length === 0;
+
   return (
     <div className="relative">
       <div
-        className={clsx("overflow-x-auto ", data.length > 0 ? "min-h-120" : "")}
+        className={clsx(
+          "overflow-x-auto",
+          data.length > 0 || loading || error ? "min-h-120" : "",
+        )}
       >
         <table className={clsx("w-full  text-sm text-left rtl:text-right")}>
           <thead className=" text-[#949494] text-xs border-b border-[#CFCFCF] font-manrope">
@@ -52,22 +62,90 @@ export const CustomTable = <T,>({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="py-4 text-[#0F0F0F]   whitespace-nowrap pr-6 border-b border-[#CFCFCF]"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+            {loading &&
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <tr key={`loading-${rowIndex}`}>
+                  {Array.from({ length: columnCount }).map((__, cellIndex) => (
+                    <td
+                      key={`loading-${rowIndex}-${cellIndex}`}
+                      className="py-4 whitespace-nowrap pr-6 border-b border-[#CFCFCF]"
+                    >
+                      <div
+                        className={clsx(
+                          "h-4 animate-pulse rounded bg-[#E5E7EB]",
+                          cellIndex === 0 ? "w-8" : "max-w-[140px] w-full",
+                        )}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+
+            {!loading && error && (
+              <tr>
+                <td colSpan={columnCount} className="py-16">
+                  <div className="flex flex-col items-center justify-center gap-3 text-center">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#FEE2E2] text-[#DC2626]">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden
+                      >
+                        <path
+                          d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#111827]">
+                        Failed to load data
+                      </p>
+                      <p className="mt-1 max-w-sm text-sm text-[#6B7280]">
+                        {error}
+                      </p>
+                    </div>
+                    {onRetry && (
+                      <button
+                        type="button"
+                        onClick={onRetry}
+                        className="rounded-lg bg-[#5B26EF] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#4A1FD4]"
+                      >
+                        Try again
+                      </button>
+                    )}
+                  </div>
+                </td>
               </tr>
-            ))}
+            )}
+
+            {!loading &&
+              !error &&
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <td
+                      key={cell.id}
+                      className="py-4 text-[#0F0F0F]   whitespace-nowrap pr-6 border-b border-[#CFCFCF]"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
-      {!loading && data.length === 0 && (
+      {showEmptyState && (
         <div className="text-center gap-y-2  h-100 flex-col flex justify-center items-center ">
           <div className="">
             <svg

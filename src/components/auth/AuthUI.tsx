@@ -1,6 +1,10 @@
 import { FinswichLogo } from "@/assets/icons/finswich-logo";
+import { LogoutButton } from "@/components/auth/LogoutButton";
+import clsx from "clsx";
+import { forwardRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export const AuthWrapper: React.FC<{ children: React.ReactNode }> = (props) => {
   return (
@@ -12,7 +16,7 @@ export const AuthWrapper: React.FC<{ children: React.ReactNode }> = (props) => {
   );
 };
 
-export const AuthHeader = () => {
+export const AuthHeader = ({ showLogout = false }: { showLogout?: boolean }) => {
   return (
     <div>
       <div className="flex container py-4 md:py-5 px-4 md:px-6 items-center justify-between mx-auto">
@@ -59,6 +63,7 @@ export const AuthHeader = () => {
               Contact Support
             </Link>
           </div>
+          {showLogout ? <LogoutButton variant="ghost" /> : null}
         </div>
       </div>
     </div>
@@ -171,21 +176,145 @@ export const AuthToggle = ({
   );
 };
 
+const authCarouselSlides = [
+  {
+    eyebrow: "Merchant infrastructure",
+    title: "Financial access to all.",
+    description:
+      "Create apps, publish experiences, and manage the services your customers rely on.",
+    image:
+      "https://images.unsplash.com/photo-1758876202430-a0595cf17d3e?auto=format&fit=crop&w=1400&q=80",
+    imageAlt: "Business owner using a phone and payment card",
+  },
+  {
+    eyebrow: "Builder workflow",
+    title: "Launch products faster.",
+    description:
+      "Configure app assets, services, and pricing from one focused workspace.",
+    image:
+      "https://images.unsplash.com/photo-1726066012645-959fc63f61b4?auto=format&fit=crop&w=1400&q=80",
+    imageAlt: "Contactless payment using a phone",
+  },
+  {
+    eyebrow: "App operations",
+    title: "Keep every app in context.",
+    description:
+      "Switch between apps, review details, and publish updates with confidence.",
+    image:
+      "https://images.pexels.com/photos/28841475/pexels-photo-28841475.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    imageAlt: "Online payment with a smartphone and payment card",
+  },
+] as const;
+
+const AuthCarouselPanel = () => {
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slide = authCarouselSlides[activeSlide];
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((currentSlide) =>
+        (currentSlide + 1) % authCarouselSlides.length,
+      );
+    }, 5200);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative hidden min-h-full overflow-hidden md:col-span-7 md:block bg-[linear-gradient(52.33deg,#23232B_26.31%,#201861_65.03%)]">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_1px,transparent_1px)] bg-[size:34px_34px] opacity-20" />
+      <div className="absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(180deg,transparent,rgba(15,15,20,0.72))]" />
+
+      <div className="relative flex h-full min-h-163 flex-col justify-between px-8 py-8 lg:px-12 lg:py-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={slide.title}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+            className="max-w-xl"
+          >
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-white/55">
+              {slide.eyebrow}
+            </p>
+            <h2 className="max-w-lg text-5xl font-bold leading-tight text-white lg:text-6xl">
+              {slide.title}
+            </h2>
+            <p className="mt-5 max-w-md text-base leading-7 text-white/72 lg:text-lg">
+              {slide.description}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="relative flex flex-1 items-end justify-center py-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={slide.image}
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: -16 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="relative h-[24rem] w-full max-w-[34rem] overflow-hidden rounded-[1.375rem] border border-white/15 bg-white/10 shadow-2xl"
+            >
+              <img
+                src={slide.image}
+                alt={slide.imageAlt}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.05),rgba(0,0,0,0.32))]" />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            {authCarouselSlides.map((item, index) => {
+              const isActive = index === activeSlide;
+
+              return (
+                <button
+                  key={item.title}
+                  type="button"
+                  aria-label={`Show ${item.title}`}
+                  aria-current={isActive}
+                  onClick={() => setActiveSlide(index)}
+                  className={clsx(
+                    "h-2.5 rounded-full transition-all duration-300",
+                    isActive
+                      ? "w-14 bg-white"
+                      : "w-7 bg-white/25 hover:bg-white/45",
+                  )}
+                />
+              );
+            })}
+          </div>
+
+          <div className="rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold text-white/70 backdrop-blur">
+            Finswich merchant OS
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const AuthSplitCard: React.FC<{ children: React.ReactNode }> = (
   props,
 ) => {
   return (
     <div className="min-h-[400px] md:min-h-163 grid grid-cols-12 bg-[#FFFFFFAD] rounded-xl md:rounded-[1.375rem] overflow-hidden w-full max-w-full">
       <div className="col-span-12 md:col-span-5 py-6 px-4 sm:px-8 md:py-8 md:px-16">{props.children}</div>
-      <div className="hidden md:block col-span-7 bg-[linear-gradient(52.33deg,#23232B_26.31%,#201861_65.03%)]"></div>
+      <AuthCarouselPanel />
     </div>
   );
 };
 
 interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  icon: "mail" | "lock" | "company" | "otp";
+  icon: "mail" | "lock" | "company" | "otp" | "user";
   endAdornment?: React.ReactNode;
+  error?: string;
 }
 
 const iconPath: Record<AuthInputProps["icon"], React.ReactNode> = {
@@ -263,6 +392,15 @@ const iconPath: Record<AuthInputProps["icon"], React.ReactNode> = {
     </>
   ),
 
+  user: (
+    <path
+      d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  ),
   otp: (
     <>
       <svg
@@ -294,37 +432,75 @@ const iconPath: Record<AuthInputProps["icon"], React.ReactNode> = {
   ),
 };
 
-export const AuthInput = ({
-  label,
-  icon,
-  endAdornment,
-  className = "",
-  ...props
-}: AuthInputProps) => (
-  <label className="block">
-    <span className="mb-2 block text-xs md:text-sm text-[#969696]">{label}</span>
-    <span
-      className={`flex h-12 md:h-14 items-center rounded-xl border border-[#969696] bg-white px-3 md:px-4 focus-within:border-[#3C0DCB] focus-within:shadow-[0_0_0_3px_rgba(114,105,235,0.18)] ${className}`}
-    >
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        className="mr-3 shrink-0 text-[#c2c4ce]"
-        aria-hidden="true"
-      >
-        {iconPath[icon]}
-      </svg>
-      <input
-        {...props}
-        className="h-full w-full border-0 bg-transparent text-sm text-[#33364a] placeholder:text-[#D2D2D2] focus:outline-none"
-      />
-      {endAdornment ? (
-        <span className="ml-3 shrink-0">{endAdornment}</span>
-      ) : null}
-    </span>
-  </label>
+export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
+  function AuthInput(
+    { label, icon, endAdornment, className = "", error, type, ...props },
+    ref,
+  ) {
+    const [showPassword, setShowPassword] = useState(false);
+    const hasError = Boolean(error);
+    const isPasswordInput = type === "password";
+    const inputType = isPasswordInput && showPassword ? "text" : type;
+
+    return (
+      <label className="block">
+        <span className="mb-2 block text-xs md:text-sm text-[#969696]">
+          {label}
+        </span>
+        <span
+          className={clsx(
+            "flex h-12 md:h-14 items-center rounded-xl border bg-white px-3 md:px-4",
+            hasError
+              ? "border-[#e53935] focus-within:border-[#e53935] focus-within:shadow-[0_0_0_3px_rgba(229,57,53,0.18)]"
+              : "border-[#969696] focus-within:border-[#3C0DCB] focus-within:shadow-[0_0_0_3px_rgba(114,105,235,0.18)]",
+            className,
+          )}
+        >
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="mr-3 shrink-0 text-[#c2c4ce]"
+            aria-hidden="true"
+          >
+            {iconPath[icon]}
+          </svg>
+          <input
+            ref={ref}
+            {...props}
+            type={inputType}
+            className="h-full w-full border-0 bg-transparent text-sm text-[#33364a] placeholder:text-[#D2D2D2] focus:outline-none"
+          />
+          {endAdornment ? (
+            <span className="ml-3 shrink-0">{endAdornment}</span>
+          ) : null}
+          {isPasswordInput ? (
+            <button
+              type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              disabled={props.disabled}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => setShowPassword((current) => !current)}
+              className="ml-3 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-[#969696] transition hover:bg-[#f2f2f7] hover:text-[#3C0DCB] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {showPassword ? (
+                <FiEyeOff className="size-5" aria-hidden="true" />
+              ) : (
+                <FiEye className="size-5" aria-hidden="true" />
+              )}
+            </button>
+          ) : null}
+        </span>
+        {error ? (
+          <p className="mt-1 text-xs text-[#e53935]" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </label>
+    );
+  },
 );
 
 interface AuthActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -333,12 +509,16 @@ interface AuthActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEle
 
 export const AuthActionButton: React.FC<AuthActionButtonProps> = ({
   children,
+  loading,
+  disabled,
   ...rest
 }) => (
   <button
-    className="h-12 md:h-14 w-full text-white rounded-xl bg-[#3C0DCB] cursor-pointer text-sm md:text-base"
+    type="submit"
+    disabled={disabled || loading}
+    className="h-12 md:h-14 w-full text-white rounded-xl bg-[#3C0DCB] cursor-pointer text-sm md:text-base disabled:cursor-not-allowed disabled:opacity-60"
     {...rest}
   >
-    {children}
+    {loading ? "Please wait..." : children}
   </button>
 );

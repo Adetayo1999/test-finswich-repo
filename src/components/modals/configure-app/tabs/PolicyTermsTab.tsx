@@ -2,6 +2,10 @@ import { useState } from "react";
 import clsx from "clsx";
 import { SimpleWysiwyg } from "@/components/configure-app/SimpleWysiwyg";
 import { PrimaryButton } from "@/components/ui/PrimaryButton";
+import type {
+  PolicyDocumentConfig,
+  PolicyTermsConfig,
+} from "../config-data";
 
 const SAMPLE_COPY = `
   <h2 style="font-size: 20px; line-height: 1.5; font-weight: 700; color: #111827; margin-bottom: 20px;">Input Policy</h2>
@@ -11,52 +15,99 @@ const SAMPLE_COPY = `
   <p>Upon reaching the coordinates, X_AE_B-22 found itself standing before a dilapidated chapel, a relic from centuries past.</p>
 `;
 
-export const PolicyTermsTab = () => (
+type PolicyTermsTabProps = {
+  value: PolicyTermsConfig;
+  onChange: (value: PolicyTermsConfig) => void;
+  onPrevious: () => void;
+  onNext: () => void;
+  onSave: () => void;
+  saving?: boolean;
+};
+
+export const PolicyTermsTab = ({
+  value,
+  onChange,
+  onPrevious,
+  onNext,
+  onSave,
+  saving,
+}: PolicyTermsTabProps) => {
+  const updateDocument = (
+    key: keyof PolicyTermsConfig,
+    patch: Partial<PolicyDocumentConfig>,
+  ) => {
+    onChange({
+      ...value,
+      [key]: {
+        ...value[key],
+        ...patch,
+      },
+    });
+  };
+
+  return (
   <div className="w-full max-w-295">
     <div className="space-y-12">
       <DocumentSection
         title="Policy"
         urlPrompt="Enter URL to your Privacy Policy"
         urlLabel="Privacy Policy URL"
+        value={value.privacy_policy}
+        onChange={(patch) => updateDocument("privacy_policy", patch)}
       />
       <DocumentSection
         title="Terms & Conditions"
         urlPrompt="Enter URL to your Terms & Condition"
         urlLabel="Terms & Condition URL"
+        value={value.terms_conditions}
+        onChange={(patch) => updateDocument("terms_conditions", patch)}
       />
     </div>
     <div className="mt-8 flex gap-3">
       <button
         type="button"
+        onClick={onPrevious}
         className="rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-6 py-2 text-sm font-semibold text-[#111827]"
       >
         Previous
       </button>
-      <PrimaryButton className="bg-[#111827] px-8">Next</PrimaryButton>
+      <PrimaryButton className="bg-[#111827] px-8" onClick={onNext}>
+        Next
+      </PrimaryButton>
       <button
         type="button"
+        onClick={onSave}
+        disabled={saving}
         className="rounded-lg border border-[#111827] px-6 py-2 text-sm font-semibold text-[#111827]"
       >
-        Save
+        {saving ? "Saving..." : "Save"}
       </button>
     </div>
   </div>
-);
+  );
+};
 
 interface DocumentSectionProps {
   title: string;
   urlPrompt: string;
   urlLabel: string;
+  value: PolicyDocumentConfig;
+  onChange: (patch: Partial<PolicyDocumentConfig>) => void;
 }
 
 const DocumentSection = ({
   title,
   urlPrompt,
   urlLabel,
+  value,
+  onChange,
 }: DocumentSectionProps) => {
-  const [format, setFormat] = useState<"standard" | "aside" | "link">(
-    "standard",
-  );
+  const [format, setLocalFormat] = useState(value.format);
+
+  const setFormat = (nextFormat: PolicyDocumentConfig["format"]) => {
+    setLocalFormat(nextFormat);
+    onChange({ format: nextFormat });
+  };
 
   return (
     <section className="space-y-8">
@@ -69,6 +120,8 @@ const DocumentSection = ({
             <input
               type="url"
               placeholder="Enter URL"
+              value={value.url}
+              onChange={(event) => onChange({ url: event.target.value })}
               className="h-11 w-full rounded-xl border border-[#D9DDE5] bg-white px-4 text-sm text-[#111827] outline-none"
             />
           </div>
@@ -76,7 +129,7 @@ const DocumentSection = ({
             <div>
               <p className="text-sm text-[#A1A1AA]">{urlLabel}</p>
               <p className="text-xl font-semibold text-[#18181B]">
-                https://store.storak.com/yourusername
+                {value.url || "https://store.storak.com/yourusername"}
               </p>
             </div>
             <CircleIconButton>
@@ -317,6 +370,8 @@ const DocumentSection = ({
               placeholder={`Write your ${title.toLowerCase()} here...`}
               minHeight="520px"
               defaultContent={SAMPLE_COPY}
+              value={value.content}
+              onChange={(content) => onChange({ content })}
             />
           </div>
         </div>

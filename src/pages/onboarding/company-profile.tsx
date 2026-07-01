@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   PageComponentDescription,
   PageComponentTitle,
@@ -7,9 +8,11 @@ import {
 } from "@/components/common/pages-steps-ui";
 import { OnboardingScreenComponent } from "@/components/onboarding";
 import CompanyProfileModal from "@/components/modals/company-profile-modal";
+import { ROUTES } from "@/routes/paths";
 
 function CompanyProfilePage() {
   const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -33,7 +36,12 @@ function CompanyProfilePage() {
         </div>
 
         <div className="">
-          <PageStepButton variant="light">Next Step</PageStepButton>
+          <PageStepButton
+            variant="light"
+            onClick={() => navigate(ROUTES.ONBOARDING.SHAREHOLDERS)}
+          >
+            Next Step
+          </PageStepButton>
         </div>
       </OnboardingScreenComponent>
 

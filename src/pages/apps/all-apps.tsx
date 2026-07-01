@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
+import { useSearchParams } from "react-router-dom";
 import type { MerchantApp } from "@/api/merchants";
 import { AppsTable } from "@/components/apps/AppsUI";
 import { AppsWrapper } from "@/components/layouts/AppsLayout";
@@ -15,7 +16,10 @@ import {
 } from "@/hooks/api/useMerchantApps";
 
 const AllAppsPage = () => {
-  const [showCreateApp, setShowCreateApp] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showCreateApp, setShowCreateApp] = useState(
+    () => searchParams.get("createApp") === "true",
+  );
   const [showConfigureApp, setShowConfigureApp] = useState(false);
   const [appToConfigure, setAppToConfigure] = useState<MerchantApp | null>(
     null,
@@ -40,6 +44,13 @@ const AllAppsPage = () => {
   const handleCloseConfigure = () => {
     setShowConfigureApp(false);
     setAppToConfigure(null);
+  };
+
+  const handleCloseCreateApp = () => {
+    setShowCreateApp(false);
+    if (searchParams.get("createApp")) {
+      setSearchParams({}, { replace: true });
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -91,7 +102,7 @@ const AllAppsPage = () => {
 
       <AnimatePresence>
         {showCreateApp && (
-          <CreateAppModal onClose={() => setShowCreateApp(false)} />
+          <CreateAppModal onClose={handleCloseCreateApp} />
         )}
         {showConfigureApp && (
           <ConfigureAppModal

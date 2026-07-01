@@ -1,24 +1,117 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import ModalWrapper from "../common/modal";
 import { ModalCheckbox, ModalInput, ModalSelect } from "../common/modal/form";
 import { PrimaryButton } from "../ui/PrimaryButton";
+import { useComplianceDraft } from "@/hooks/useComplianceDraft";
 
 interface CompanyProfileModalProps {
   onClose?: () => void;
 }
 
-const CompanyProfileModal: React.FC<CompanyProfileModalProps> = (props) => {
-  const [selectedVolumes, setSelectedVolumes] = useState<string[]>([]);
+const BUSINESS_TYPES = [
+  { label: "Sole Proprietorship", value: "sole_proprietorship" },
+  { label: "Partnership", value: "partnership" },
+  { label: "Limited Liability Company", value: "limited_liability_company" },
+  { label: "Corporation", value: "corporation" },
+  { label: "Non Profit", value: "non_profit" },
+  { label: "Government Entity", value: "government_entity" },
+];
 
-  const toggleVolume = (value: string) => {
-    setSelectedVolumes((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
+const INDUSTRIES = [
+  "Software Development",
+  "Financial Services",
+  "E-commerce",
+  "Education",
+  "Healthcare",
+  "Logistics",
+  "Other",
+];
+
+const CompanyProfileModal: React.FC<CompanyProfileModalProps> = (props) => {
+  const { draft, saveDraft } = useComplianceDraft();
+  const [form, setForm] = useState(draft);
+
+  const updateBusinessInfo =
+    (field: keyof typeof form.businessInfo) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      setForm((current) => ({
+        ...current,
+        businessInfo: {
+          ...current.businessInfo,
+          [field]: event.target.value,
+        },
+      }));
+    };
+
+  const updateBusinessSurvey =
+    (field: keyof typeof form.businessSurvey) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value =
+        field === "monthlyProcessedVolume"
+          ? Number(event.target.value)
+          : event.target.value;
+
+      setForm((current) => ({
+        ...current,
+        businessSurvey: {
+          ...current.businessSurvey,
+          [field]: value,
+        },
+      }));
+    };
+
+  const updateRiskAssessment =
+    (field: keyof typeof form.riskAssessment) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((current) => ({
+        ...current,
+        riskAssessment: {
+          ...current.riskAssessment,
+          [field]: Number(event.target.value),
+        },
+      }));
+    };
+
+  const toggleRiskAssessment =
+    (field: keyof typeof form.riskAssessment) => (checked: boolean) => {
+      setForm((current) => ({
+        ...current,
+        riskAssessment: {
+          ...current.riskAssessment,
+          [field]: checked,
+        },
+      }));
+    };
+
+  const handleBusinessDescriptionChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const value = event.target.value;
+    setForm((current) => ({
+      ...current,
+      businessInfo: {
+        ...current.businessInfo,
+        businessDescription: value,
+      },
+      businessSurvey: {
+        ...current.businessSurvey,
+        businessModel: value,
+      },
+    }));
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    saveDraft(form);
+    toast.success("Company profile saved");
+    props.onClose?.();
   };
 
   return (
     <ModalWrapper onClose={props.onClose}>
-      <div className="w-[70%]">
+      <div className="w-[82%]">
         <div className="mb-8.5">
           <h1 className="text-[#4F4F4F] text-[2rem] font-bold mb-1">
             Company Profile
@@ -28,79 +121,186 @@ const CompanyProfileModal: React.FC<CompanyProfileModalProps> = (props) => {
           </p>
         </div>
 
-        <form>
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            <ModalInput
-              label="Company Name"
-              placeholder="Legal registered name"
-            />
-            <ModalInput
-              label="Registration Number"
-              placeholder="Enter registration number"
-            />
-            <ModalInput label="Address" placeholder="Enter address" />
-            <ModalInput label="Website" placeholder="Enter website url" />
-            <ModalInput label="Email" placeholder="Enter email" type="email" />
-            <ModalInput
-              label="Phone Number"
-              placeholder="Enter phone number"
-              type="tel"
-            />
-            <ModalSelect label="Industry">
-              <option value="">Select industry</option>
-            </ModalSelect>
-            <ModalInput
-              label="Tax Identification Number"
-              placeholder="Enter TIN"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <section>
+            <h2 className="text-[#4F4F4F] text-lg font-bold mb-4">
+              Business Information
+            </h2>
+            <div className="grid grid-cols-2 gap-6">
+              <ModalInput
+                label="Company Name"
+                placeholder="Legal registered name"
+                value={form.businessInfo.companyName}
+                onChange={updateBusinessInfo("companyName")}
+                required
+              />
+              <ModalInput
+                label="Registration Number"
+                placeholder="Enter registration number"
+                value={form.businessInfo.registrationNumber}
+                onChange={updateBusinessInfo("registrationNumber")}
+                required
+              />
+              <ModalInput
+                label="Address"
+                placeholder="Enter address"
+                value={form.businessInfo.address}
+                onChange={updateBusinessInfo("address")}
+                required
+              />
+              <ModalInput
+                label="Website"
+                placeholder="https://example.com"
+                value={form.businessInfo.website}
+                onChange={updateBusinessInfo("website")}
+                required
+              />
+              <ModalInput
+                label="Email"
+                placeholder="Enter email"
+                type="email"
+                value={form.businessInfo.email}
+                onChange={updateBusinessInfo("email")}
+                required
+              />
+              <ModalInput
+                label="Phone Number"
+                placeholder="+2347012345678"
+                type="tel"
+                value={form.businessInfo.phoneNumber}
+                onChange={updateBusinessInfo("phoneNumber")}
+                required
+              />
+              <ModalSelect
+                label="Industry"
+                value={form.businessInfo.industry}
+                onChange={updateBusinessInfo("industry")}
+                required
+              >
+                <option value="">Select industry</option>
+                {INDUSTRIES.map((industry) => (
+                  <option key={industry} value={industry}>
+                    {industry}
+                  </option>
+                ))}
+              </ModalSelect>
+              <ModalInput
+                label="Tax Identification Number"
+                placeholder="Enter TIN"
+                value={form.businessInfo.taxIdentificationNumber}
+                onChange={updateBusinessInfo("taxIdentificationNumber")}
+                required
+              />
+              <ModalInput
+                label="Country"
+                placeholder="Nigeria"
+                value={form.businessInfo.country}
+                onChange={updateBusinessInfo("country")}
+                required
+              />
+              <ModalInput
+                label="Company Logo URL"
+                placeholder="https://..."
+                value={form.businessInfo.companyLogoUrl}
+                onChange={updateBusinessInfo("companyLogoUrl")}
+                required
+              />
+            </div>
+          </section>
 
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            <div>
-              <p className="text-[#5C5C60] font-bold text-sm mb-2">
-                Tell us about your monthly transaction volume
-              </p>
-              <div className="flex flex-col gap-2 text-sm text-[#3F3F3F]">
-                <ModalCheckbox
-                  label="$1k - $10k"
-                  checked={selectedVolumes.includes("1k-10k")}
-                  onChange={() => toggleVolume("1k-10k")}
-                />
-                <ModalCheckbox
-                  label="$10k - $50k"
-                  checked={selectedVolumes.includes("10k-50k")}
-                  onChange={() => toggleVolume("10k-50k")}
-                />
-                <ModalCheckbox
-                  label="$50k - $100k"
-                  checked={selectedVolumes.includes("50k-100k")}
-                  onChange={() => toggleVolume("50k-100k")}
-                />
-                <ModalCheckbox
-                  label="$100k - $500k"
-                  checked={selectedVolumes.includes("100k-500k")}
-                  onChange={() => toggleVolume("100k-500k")}
-                />
-                <ModalCheckbox
-                  label="$500k & above"
-                  checked={selectedVolumes.includes("500k+")}
-                  onChange={() => toggleVolume("500k+")}
+          <section>
+            <h2 className="text-[#4F4F4F] text-lg font-bold mb-4">
+              Business Survey
+            </h2>
+            <div className="grid grid-cols-2 gap-6">
+              <ModalSelect
+                label="Business Type"
+                value={form.businessSurvey.businessType}
+                onChange={updateBusinessSurvey("businessType")}
+                required
+              >
+                <option value="">Select business type</option>
+                {BUSINESS_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </ModalSelect>
+              <ModalInput
+                label="Survey Country"
+                placeholder="Nigeria"
+                value={form.businessSurvey.country}
+                onChange={updateBusinessSurvey("country")}
+                required
+              />
+              <ModalInput
+                label="Monthly Processed Volume"
+                placeholder="700000"
+                type="number"
+                min="0"
+                value={form.businessSurvey.monthlyProcessedVolume || ""}
+                onChange={updateBusinessSurvey("monthlyProcessedVolume")}
+                required
+              />
+              <div>
+                <p className="text-[#5C5C60] font-bold text-sm mb-2">
+                  Business Description / Model
+                </p>
+                <textarea
+                  className="border border-[#C4C4C4] text-[#3F3F3F] rounded-md min-h-[120px] text-sm p-2.5 w-full bg-[#FFFFFF6B] resize-none"
+                  placeholder="Description of your product and services..."
+                  value={form.businessInfo.businessDescription}
+                  onChange={handleBusinessDescriptionChange}
+                  required
                 />
               </div>
             </div>
+          </section>
 
-            <div>
-              <p className="text-[#5C5C60] font-bold text-sm mb-2">
-                Describe your business model
-              </p>
-              <textarea
-                className="border border-[#C4C4C4] text-[#3F3F3F] rounded-md min-h-[120px] text-sm p-2.5 w-full bg-[#FFFFFF6B] resize-none"
-                placeholder="Description of your product &amp; services..."
+          <section>
+            <h2 className="text-[#4F4F4F] text-lg font-bold mb-4">
+              Risk Assessment
+            </h2>
+            <div className="grid grid-cols-2 gap-6">
+              <ModalInput
+                label="Annual Turnover"
+                placeholder="1000000"
+                type="number"
+                min="0"
+                value={form.riskAssessment.annualTurnover || ""}
+                onChange={updateRiskAssessment("annualTurnover")}
+                required
               />
+              <ModalInput
+                label="Expected Transaction Volume"
+                placeholder="50000"
+                type="number"
+                min="0"
+                value={form.riskAssessment.expectedTransactionVolume || ""}
+                onChange={updateRiskAssessment("expectedTransactionVolume")}
+                required
+              />
+              <div className="flex flex-col gap-3 text-sm text-[#3F3F3F]">
+                <ModalCheckbox
+                  label="High-risk jurisdiction"
+                  checked={form.riskAssessment.highRiskJurisdiction}
+                  onChange={toggleRiskAssessment("highRiskJurisdiction")}
+                />
+                <ModalCheckbox
+                  label="Sanction list check completed"
+                  checked={form.riskAssessment.sanctionListCheck}
+                  onChange={toggleRiskAssessment("sanctionListCheck")}
+                />
+                <ModalCheckbox
+                  label="Adverse media check completed"
+                  checked={form.riskAssessment.adverseMediaCheck}
+                  onChange={toggleRiskAssessment("adverseMediaCheck")}
+                />
+              </div>
             </div>
-          </div>
+          </section>
 
-          <PrimaryButton type="submit">Submit</PrimaryButton>
+          <PrimaryButton type="submit">Save Profile</PrimaryButton>
         </form>
       </div>
     </ModalWrapper>
@@ -108,4 +308,3 @@ const CompanyProfileModal: React.FC<CompanyProfileModalProps> = (props) => {
 };
 
 export default CompanyProfileModal;
-

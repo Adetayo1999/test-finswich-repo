@@ -37,6 +37,7 @@ export const OnboardingScreenComponent: React.FC<
       </div>
       <PageStepsContainer>
         <PageStepsLeftComponent>
+          {/* Keeping these steps here for later compliance phases.
           <Step
             index={1}
             status="completed"
@@ -64,8 +65,9 @@ export const OnboardingScreenComponent: React.FC<
               ROUTES.ONBOARDING.SIGN_CONTRACT,
             )}
           />
+          */}
           <Step
-            index={4}
+            index={1}
             status="completed"
             title="Company Profile"
             onClick={() => navigate(ROUTES.ONBOARDING.COMPANY_PROFILE)}
@@ -74,7 +76,7 @@ export const OnboardingScreenComponent: React.FC<
             )}
           />
           <Step
-            index={5}
+            index={2}
             status="pending"
             title="Shareholders"
             onClick={() => navigate(ROUTES.ONBOARDING.SHAREHOLDERS)}
@@ -83,7 +85,7 @@ export const OnboardingScreenComponent: React.FC<
             )}
           />
           <Step
-            index={6}
+            index={3}
             status="pending"
             title="Company Documents"
             onClick={() => navigate(ROUTES.ONBOARDING.COMPANY_DOCUMENTS)}

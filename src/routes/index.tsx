@@ -52,15 +52,20 @@ export const router = createBrowserRouter([
   },
   {
     path: ROUTES.APPS.ROOT,
-    element: getElement(pages.AppsLayout),
+    element: <RequireAuth />,
     children: [
       {
-        index: true,
-        element: getElement(pages.AllAppsPage),
-      },
-      {
-        path: "admin",
-        element: getElement(pages.AppAdminPage),
+        element: getElement(pages.AppsLayout),
+        children: [
+          {
+            index: true,
+            element: getElement(pages.AllAppsPage),
+          },
+          {
+            path: "admin",
+            element: getElement(pages.AppAdminPage),
+          },
+        ],
       },
     ],
   },
@@ -83,7 +88,7 @@ export const router = createBrowserRouter([
         children: [
       {
         index: true,
-        element: <Navigate to={ROUTES.ONBOARDING.LICENSE_STATUS} replace />,
+        element: <Navigate to={ROUTES.ONBOARDING.COMPANY_PROFILE} replace />,
       },
       {
         path: "license-status",

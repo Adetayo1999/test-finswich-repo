@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   PageComponentDescription,
   PageComponentTitle,
@@ -7,9 +8,11 @@ import {
 } from "@/components/common/pages-steps-ui";
 import { OnboardingScreenComponent } from "@/components/onboarding";
 import ShareholdersModal from "@/components/modals/shareholders-modal";
+import { ROUTES } from "@/routes/paths";
 
 function ShareholdersPage() {
   const [showShareholdersModal, setShowShareholdersModal] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -33,7 +36,12 @@ function ShareholdersPage() {
         </div>
 
         <div className="">
-          <PageStepButton variant="light">Next Step</PageStepButton>
+          <PageStepButton
+            variant="light"
+            onClick={() => navigate(ROUTES.ONBOARDING.COMPANY_DOCUMENTS)}
+          >
+            Next Step
+          </PageStepButton>
         </div>
       </OnboardingScreenComponent>
 

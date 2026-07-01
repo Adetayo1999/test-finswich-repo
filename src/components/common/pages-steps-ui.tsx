@@ -87,30 +87,10 @@ export const Step: React.FC<StepProps> = (props) => {
       <span
         className={clsx(
           "h-6 w-6 rounded-full flex justify-center items-center",
-          props.status === "completed"
-            ? "bg-[#039855]"
-            : "text-[#667085] border border-[#EAECF0]",
+          "text-[#667085] border border-[#EAECF0]",
         )}
       >
-        {props.status === "completed" ? (
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M8.33366 2.5L3.75033 7.08333L1.66699 5"
-              stroke="white"
-              strokeWidth="1.66667"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        ) : (
-          props.index
-        )}
+        {props.index}
       </span>
       <span
         className={clsx(

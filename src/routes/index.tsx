@@ -86,34 +86,40 @@ export const router = createBrowserRouter([
       {
         element: getElement(pages.OnboardingLayout),
         children: [
-      {
-        index: true,
-        element: <Navigate to={ROUTES.ONBOARDING.COMPANY_PROFILE} replace />,
-      },
-      {
-        path: "license-status",
-        element: getElement(pages.LicenseStatusPage),
-      },
-      {
-        path: "verify-account",
-        element: getElement(pages.VerifyAccountPage),
-      },
-      {
-        path: "sign-contract",
-        element: getElement(pages.SignContractPage),
-      },
-      {
-        path: "company-profile",
-        element: getElement(pages.CompanyProfilePage),
-      },
-      {
-        path: "shareholders",
-        element: getElement(pages.ShareholdersPage),
-      },
-      {
-        path: "company-documents",
-        element: getElement(pages.CompanyDocumentsPage),
-      },
+          {
+            index: true,
+            element: (
+              <Navigate to={ROUTES.ONBOARDING.COMPANY_PROFILE} replace />
+            ),
+          },
+          {
+            path: "license-status",
+            element: getElement(pages.LicenseStatusPage),
+          },
+          {
+            path: "verify-account",
+            element: getElement(pages.VerifyAccountPage),
+          },
+          {
+            path: "sign-contract",
+            element: getElement(pages.SignContractPage),
+          },
+          {
+            path: "company-profile",
+            element: getElement(pages.CompanyProfilePage),
+          },
+          {
+            path: "shareholders",
+            element: getElement(pages.ShareholdersPage),
+          },
+          {
+            path: "company-documents",
+            element: getElement(pages.CompanyDocumentsPage),
+          },
+          {
+            path: "compliance-review",
+            element: getElement(pages.ComplianceReviewPage),
+          },
         ],
       },
     ],

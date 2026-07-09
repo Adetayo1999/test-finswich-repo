@@ -13,6 +13,8 @@ export type MerchantApp = {
   activeConfigurationId?: string;
   subdomainUrl?: string;
   customDomain?: string;
+  submittedAt?: string;
+  approvedAt?: string;
   createdAt: string;
   updatedAt: string;
 };

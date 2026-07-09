@@ -22,6 +22,7 @@ export const ROUTES = {
     COMPANY_PROFILE: "/onboarding/company-profile",
     SHAREHOLDERS: "/onboarding/shareholders",
     COMPANY_DOCUMENTS: "/onboarding/company-documents",
+    COMPLIANCE_REVIEW: "/onboarding/compliance-review",
   },
 
   APPS: {

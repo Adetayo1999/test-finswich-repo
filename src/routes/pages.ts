@@ -32,6 +32,9 @@ export const ShareholdersPage = lazy(
 export const CompanyDocumentsPage = lazy(
   () => import("@/pages/onboarding/company-documents"),
 );
+export const ComplianceReviewPage = lazy(
+  () => import("@/pages/onboarding/compliance-review"),
+);
 
 // DASHBOARD
 export const DashboardLayout = lazy(

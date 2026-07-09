@@ -12,7 +12,10 @@ export function RequireAuth() {
   const { isLoading, isError } = useCurrentUser();
   const shouldCheckCompliance =
     location.pathname.startsWith(ROUTES.APPS.ROOT) ||
-    location.pathname.startsWith("/dashboard");
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname.startsWith(ROUTES.ONBOARDING.ROOT);
+  const isComplianceReviewPage =
+    location.pathname === ROUTES.ONBOARDING.COMPLIANCE_REVIEW;
   const businessKycStatusQuery = useBusinessKycStatus(
     isAuthenticated() && !isLoading && !isError && shouldCheckCompliance,
   );
@@ -47,7 +50,8 @@ export function RequireAuth() {
 
   if (
     shouldCheckCompliance &&
-    (businessKycStatusQuery.isLoading || businessKycStatusQuery.isFetching)
+    (businessKycStatusQuery.isLoading ||
+      (!isComplianceReviewPage && businessKycStatusQuery.isFetching))
   ) {
     return location.pathname.startsWith("/dashboard") ? (
       <DashboardPageSkeleton pathname={location.pathname} />
@@ -58,11 +62,12 @@ export function RequireAuth() {
 
   if (
     shouldCheckCompliance &&
+    !isComplianceReviewPage &&
     businessKycStatusQuery.data?.status?.toLowerCase() === "pending"
   ) {
     return (
       <Navigate
-        to={ROUTES.ONBOARDING.COMPANY_PROFILE}
+        to={ROUTES.ONBOARDING.COMPLIANCE_REVIEW}
         replace
         state={{ from: location.pathname }}
       />

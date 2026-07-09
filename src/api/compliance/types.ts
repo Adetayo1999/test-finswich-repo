@@ -92,6 +92,9 @@ export type BusinessKycStatus = {
   userType: string;
   status: string;
   documentCount: number;
+  submittedAt?: string;
+  completedAt?: string;
+  riskLevel?: string;
   tiers: {
     tier2: unknown | null;
     tier3: unknown | null;

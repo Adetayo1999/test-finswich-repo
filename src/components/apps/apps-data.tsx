@@ -11,6 +11,7 @@ const columnHelper = createColumnHelper<MerchantApp>();
 
 const statusStyles: Record<string, string> = {
   draft: "bg-[#FEF3C7] text-[#92400E]",
+  approved: "bg-[#D1FAE5] text-[#065F46]",
   active: "bg-[#D1FAE5] text-[#065F46]",
   published: "bg-[#D1FAE5] text-[#065F46]",
 };
